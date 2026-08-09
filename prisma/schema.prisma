@@ -1,0 +1,44 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ตารางลูกค้า
+model Customer {
+  id          String   @id @default(uuid())
+  lineUid     String   @unique @map("line_uid")
+  displayName String   @map("display_name")
+  createdAt   DateTime @default(now()) @map("created_at")
+  orders      Order[]
+
+  @@map("customers")
+}
+
+// ตารางออเดอร์งาน (พร้อมระบบคิวงาน)
+model Order {
+  id         String    @id @default(uuid())
+  customerId String    @map("customer_id")
+  title      String
+  totalPrice Decimal   @map("total_price") @db.Decimal(10, 2)
+  status     Status    @default(PENDING_DEPOSIT)
+  startDate  DateTime  @default(now()) @map("start_date")
+  dueDate    DateTime? @map("due_date")
+  fileLink   String?   @map("file_link")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("orders")
+}
+
+// สถานะงาน
+enum Status {
+  PENDING_DEPOSIT
+  IN_PROGRESS
+  DELIVERED
+}
