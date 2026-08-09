@@ -1,16 +1,24 @@
 "use client";
 import { useState } from "react";
 
+// 1. ประกาศ Type ที่ชัดเจนแทนการใช้ any
+type Order = {
+  id: string;
+  title: string;
+  totalPrice: number;
+  status: "PENDING_DEPOSIT" | "IN_PROGRESS" | "DELIVERED";
+  dueDate?: string;
+  updatedAt: string;
+  fileLink?: string;
+};
+
 export default function ClientDashboard() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"CURRENT" | "ARCHIVE">("CURRENT");
-
-  // สำหรับทดสอบบน Localhost (แทนที่การดึงค่าจาก LIFF ชั่วคราว)
   const [testUid, setTestUid] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ฟังก์ชันดึงข้อมูลเมื่อลูกค้าเข้าสู่ระบบ (จำลอง LIFF)
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!testUid) return;
@@ -22,23 +30,27 @@ export default function ClientDashboard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lineUid: testUid }),
       });
+
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setOrders(data);
-        setIsLoggedIn(true);
-      }
-    } catch (error) {
-      alert("เกิดข้อผิดพลาดในการดึงข้อมูล");
+
+      // 2. ดักจับ HTTP Error Code อย่างรัดกุม
+      if (!res.ok)
+        throw new Error(data?.error || "เกิดข้อผิดพลาดในการดึงข้อมูล");
+      if (!Array.isArray(data))
+        throw new Error("รูปแบบข้อมูลที่ได้รับไม่ถูกต้อง");
+
+      setOrders(data);
+      setIsLoggedIn(true);
+    } catch (error: any) {
+      alert(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // คัดกรองข้อมูลตามสถานะ
   const currentOrders = orders.filter((o) => o.status !== "DELIVERED");
   const archiveOrders = orders.filter((o) => o.status === "DELIVERED");
 
-  // ฟังก์ชันช่วยแปลสถานะเป็นภาษาไทยและสี
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PENDING_DEPOSIT":
@@ -64,7 +76,6 @@ export default function ClientDashboard() {
     }
   };
 
-  // หน้าจอตอนยังไม่ล็อกอิน (โหมดทดสอบ)
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -102,10 +113,8 @@ export default function ClientDashboard() {
     );
   }
 
-  // หน้าจอ Client Dashboard จริง
   return (
     <div className="min-h-screen bg-gray-50 max-w-md mx-auto shadow-xl relative">
-      {/* Header */}
       <header className="bg-white px-6 py-8 rounded-b-3xl shadow-sm mb-6 text-center">
         <h1 className="text-2xl font-bold text-gray-800">สถานะงานของคุณ</h1>
         <p className="text-gray-500 text-sm mt-1">
@@ -113,7 +122,6 @@ export default function ClientDashboard() {
         </p>
       </header>
 
-      {/* Tabs */}
       <div className="px-6 flex space-x-2 mb-6">
         <button
           onClick={() => setActiveTab("CURRENT")}
@@ -129,7 +137,6 @@ export default function ClientDashboard() {
         </button>
       </div>
 
-      {/* List Content */}
       <div className="px-6 pb-20 space-y-4">
         {activeTab === "CURRENT" ? (
           currentOrders.length === 0 ? (
@@ -151,7 +158,7 @@ export default function ClientDashboard() {
                 <div className="text-sm text-gray-500 space-y-1">
                   <p>ราคา: ฿{order.totalPrice}</p>
                   <p>
-                    กำหนดส่ง: {" "}
+                    กำหนดส่ง:{" "}
                     {order.dueDate
                       ? new Date(order.dueDate).toLocaleDateString("th-TH")
                       : "ไม่ได้กำหนด"}
@@ -174,7 +181,7 @@ export default function ClientDashboard() {
                 {order.title}
               </h3>
               <p className="text-xs text-gray-400 mb-4">
-                เสร็จสิ้นเมื่อ: {" "}
+                เสร็จสิ้นเมื่อ:{" "}
                 {new Date(order.updatedAt).toLocaleDateString("th-TH")}
               </p>
               {order.fileLink ? (
