@@ -41,3 +41,30 @@ export type UpdateOrderPayload = {
   status: OrderStatus;
   fileLink: string;
 };
+
+// ============================================================
+// Blog Types
+// ============================================================
+
+// ข้อมูลบทความ Blog (ซิงค์กับ Prisma Model Post)
+export type Post = {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  published: boolean;
+  coverImage?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ข้อมูลที่ส่งมาจากฟอร์มสร้าง/แก้ไขบทความ (Admin)
+export type CreatePostPayload = {
+  title: string;
+  slug: string;
+  content: string;
+  published: boolean;
+  coverImage?: string;
+};
+
+export type UpdatePostPayload = Partial<CreatePostPayload>;

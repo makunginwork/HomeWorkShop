@@ -42,3 +42,17 @@ enum Status {
   IN_PROGRESS
   DELIVERED
 }
+
+// ตารางบทความ Blog
+model Post {
+  id          String    @id @default(uuid())
+  title       String
+  slug        String    @unique
+  content     String    @db.Text
+  published   Boolean   @default(false)
+  coverImage  String?   @map("cover_image")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("posts")
+}
