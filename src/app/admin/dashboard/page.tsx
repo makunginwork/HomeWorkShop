@@ -1,10 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
+import type {
+  OrderWithCustomer,
+  OrderStatus,
+  CreateOrderPayload,
+  UpdateOrderPayload,
+} from "@/types";
 
 export default function AdminDashboard() {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<OrderWithCustomer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingOrder, setEditingOrder] = useState<any>(null); // State สำหรับควบคุม Popup เปิด/ปิด
+  const [editingOrder, setEditingOrder] = useState<OrderWithCustomer | null>(null);
 
   const fetchOrders = async () => {
     try {
@@ -25,43 +31,64 @@ export default function AdminDashboard() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newOrder = {
-      lineUid: formData.get("lineUid"),
-      displayName: formData.get("displayName"),
-      title: formData.get("title"),
+    const newOrder: CreateOrderPayload = {
+      lineUid: formData.get("lineUid") as string,
+      displayName: formData.get("displayName") as string,
+      title: formData.get("title") as string,
       totalPrice: Number(formData.get("totalPrice")),
-      dueDate: formData.get("dueDate") || null,
+      dueDate: (formData.get("dueDate") as string) || null,
     };
+
     try {
-      await fetch("/api/admin/orders", {
+      const res = await fetch("/api/admin/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newOrder),
       });
+
+      // ✅ ตรวจสอบ HTTP Status — ถ้า Error ให้แจ้งเตือนและไม่ Reset Form
+      if (!res.ok) {
+        const data = await res.json();
+        alert(`เกิดข้อผิดพลาด: ${data.error || "ไม่สามารถสร้างออเดอร์ได้"}`);
+        return;
+      }
+
       fetchOrders();
       e.currentTarget.reset();
     } catch (error) {
-      alert("เกิดข้อผิดพลาดในการสร้างออเดอร์");
+      alert("เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
     }
   };
 
   // ฟังก์ชันสำหรับอัปเดตสถานะและลิงก์งาน
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!editingOrder) return;
+
     const formData = new FormData(e.currentTarget);
+    const payload: UpdateOrderPayload = {
+      status: formData.get("status") as OrderStatus,
+      fileLink: formData.get("fileLink") as string,
+    };
+
     try {
-      await fetch(`/api/admin/orders/${editingOrder.id}`, {
+      const res = await fetch(`/api/admin/orders/${editingOrder.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: formData.get("status"),
-          fileLink: formData.get("fileLink"),
-        }),
+        body: JSON.stringify(payload),
       });
-      setEditingOrder(null); // ปิด Popup
+
+      // ✅ ตรวจสอบ HTTP Status — ถ้า Error ให้แจ้งเตือนและไม่ปิด Popup
+      if (!res.ok) {
+        const data = await res.json();
+        alert(`เกิดข้อผิดพลาด: ${data.error || "ไม่สามารถอัปเดตข้อมูลได้"}`);
+        return;
+      }
+
+      setEditingOrder(null); // ปิด Popup เฉพาะเมื่อสำเร็จ
       fetchOrders(); // รีเฟรชตาราง
     } catch (error) {
-      alert("เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
+      alert("เกิดข้อผิดพลาด: ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
     }
   };
 
@@ -167,6 +194,7 @@ export default function AdminDashboard() {
                             <a
                               href={order.fileLink}
                               target="_blank"
+                              rel="noreferrer"
                               className="text-blue-500 underline"
                             >
                               ดูไฟล์

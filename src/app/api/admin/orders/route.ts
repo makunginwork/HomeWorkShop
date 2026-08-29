@@ -1,7 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { verifyAdminToken } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // ตรวจสอบ Token ก่อน — ถ้าไม่ผ่านจะ return 401 ทันที
+  const authError = await verifyAdminToken(req);
+  if (authError) return authError;
+
   try {
     const orders = await prisma.order.findMany({
       orderBy: { dueDate: "asc" },
@@ -13,7 +18,11 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  // ตรวจสอบ Token ก่อน — ถ้าไม่ผ่านจะ return 401 ทันที
+  const authError = await verifyAdminToken(req);
+  if (authError) return authError;
+
   try {
     const body = await req.json();
     const { lineUid, displayName, title, totalPrice, status, dueDate } = body;

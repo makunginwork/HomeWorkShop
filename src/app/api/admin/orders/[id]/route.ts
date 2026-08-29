@@ -1,17 +1,23 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { Prisma } from "@prisma/client";
+import { verifyAdminToken } from "@/lib/auth";
 
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } },
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }, // Next.js 15+ ต้องเป็น Promise
 ) {
+  // ตรวจสอบ Token ก่อน — ถ้าไม่ผ่านจะ return 401 ทันที
+  const authError = await verifyAdminToken(req);
+  if (authError) return authError;
+
   try {
+    const { id } = await params; // await params ตามมาตรฐาน Next.js 15+/16
     const body = await req.json();
     const { status, fileLink } = body;
 
     const updatedOrder = await prisma.order.update({
-      where: { id: params.id },
+      where: { id },
       data: { status, fileLink },
     });
 
