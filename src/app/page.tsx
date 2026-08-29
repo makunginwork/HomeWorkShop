@@ -1,6 +1,22 @@
 import Link from "next/link";
+import prisma from "@/lib/db";
 
-export default function Portfolio() {
+// เปลี่ยนเป็น async Server Component เพื่อดึงบทความล่าสุดได้โดยตรง
+export default async function Portfolio() {
+  // ดึงบทความที่ published ล่าสุด 3 บทความ สำหรับ Preview บน Landing Page
+  const latestPosts = await prisma.post.findMany({
+    where: { published: true },
+    orderBy: { createdAt: "desc" },
+    take: 3,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      coverImage: true,
+      createdAt: true,
+    },
+  });
+
   return (
     <div className="min-h-screen bg-white">
       {/* 1. Hero Section */}
@@ -18,7 +34,7 @@ export default function Portfolio() {
             <Link
               href="https://line.me/ti/p/~YOUR_LINE_ID"
               target="_blank"
-              rel="noreferrer" // <-- เติมบรรทัดนี้
+              rel="noreferrer"
               className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-medium hover:bg-blue-700 transition shadow-lg hover:shadow-xl"
             >
               ติดต่อสอบถามคิวงาน
@@ -93,6 +109,65 @@ export default function Portfolio() {
               </span>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* 4. Blog Preview Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="text-3xl font-bold text-gray-800">บทความล่าสุด</h2>
+            <Link
+              href="/blog"
+              className="text-blue-600 hover:underline text-sm font-medium"
+            >
+              ดูทั้งหมด →
+            </Link>
+          </div>
+
+          {latestPosts.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-gray-400 text-sm">ยังไม่มีบทความในขณะนี้</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {latestPosts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/blog/${post.slug}`}
+                  className="group block bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition overflow-hidden"
+                >
+                  {/* Cover Image */}
+                  {post.coverImage ? (
+                    <div className="aspect-video overflow-hidden bg-gray-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={post.coverImage}
+                        alt={post.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                      <span className="text-3xl">📄</span>
+                    </div>
+                  )}
+                  <div className="p-5">
+                    <h3 className="font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition line-clamp-2 text-sm leading-relaxed">
+                      {post.title}
+                    </h3>
+                    <p className="text-xs text-gray-400">
+                      {new Date(post.createdAt).toLocaleDateString("th-TH", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

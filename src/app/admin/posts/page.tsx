@@ -29,15 +29,19 @@ export default function AdminPostsPage() {
   const [posts, setPosts] = useState<PostListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // State สำหรับ Modal — null = ปิด, "create" = สร้างใหม่, Post = แก้ไข
-  const [modalMode, setModalMode] = useState<"create" | PostListItem | null>(null);
+  // แยก state create/edit ออกจากกัน — TypeScript จะไม่งงกับ type
+  const [isCreating, setIsCreating] = useState(false);
+  const [editingPost, setEditingPost] = useState<PostListItem | null>(null);
 
   // State สำหรับ Delete Confirm
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // State สำหรับ error ใน Modal
+  // State สำหรับ error / loading ใน Modal
   const [modalError, setModalError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  // Modal เปิดอยู่ถ้า isCreating หรือ editingPost มีค่า
+  const isModalOpen = isCreating || editingPost !== null;
 
   // ============================================================
   // Fetch Posts
@@ -58,6 +62,15 @@ export default function AdminPostsPage() {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  // ============================================================
+  // ปิด Modal
+  // ============================================================
+  const closeModal = () => {
+    setIsCreating(false);
+    setEditingPost(null);
+    setModalError("");
+  };
 
   // ============================================================
   // สร้างบทความใหม่
@@ -89,7 +102,7 @@ export default function AdminPostsPage() {
         return;
       }
 
-      setModalMode(null);
+      closeModal();
       await fetchPosts();
     } catch {
       setModalError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
@@ -103,7 +116,7 @@ export default function AdminPostsPage() {
   // ============================================================
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (typeof modalMode !== "object" || modalMode === null || modalMode === "create") return;
+    if (!editingPost) return;
 
     setModalError("");
     setIsSaving(true);
@@ -118,7 +131,7 @@ export default function AdminPostsPage() {
     };
 
     try {
-      const res = await fetch(`/api/admin/posts/${modalMode.id}`, {
+      const res = await fetch(`/api/admin/posts/${editingPost.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -130,7 +143,7 @@ export default function AdminPostsPage() {
         return;
       }
 
-      setModalMode(null);
+      closeModal();
       await fetchPosts();
     } catch {
       setModalError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
@@ -168,28 +181,32 @@ export default function AdminPostsPage() {
       .replace(/[^\w-]/g, "")
       .replace(/--+/g, "-");
 
-  const isEditMode = typeof modalMode === "object" && modalMode !== null && modalMode !== "create";
-  const editingPost = isEditMode ? (modalMode as PostListItem) : null;
-
   // ============================================================
   // Render
   // ============================================================
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto space-y-6">
-
         {/* Header */}
         <header className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">จัดการบทความ Blog</h1>
+            <h1 className="text-2xl font-bold text-gray-800">
+              จัดการบทความ Blog
+            </h1>
             <p className="text-sm text-gray-500 mt-1">
-              <a href="/admin/dashboard" className="text-blue-600 hover:underline">
+              <a
+                href="/admin/dashboard"
+                className="text-blue-600 hover:underline"
+              >
                 ← กลับ Dashboard
               </a>
             </p>
           </div>
           <button
-            onClick={() => { setModalMode("create"); setModalError(""); }}
+            onClick={() => {
+              setIsCreating(true);
+              setModalError("");
+            }}
             className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl transition text-sm"
           >
             + เขียนบทความใหม่
@@ -205,18 +222,26 @@ export default function AdminPostsPage() {
           ) : posts.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-4xl mb-3">📝</p>
-              <p className="text-gray-500">ยังไม่มีบทความ กด &ldquo;เขียนบทความใหม่&rdquo; เพื่อเริ่มต้น</p>
+              <p className="text-gray-500">
+                ยังไม่มีบทความ กด &ldquo;เขียนบทความใหม่&rdquo; เพื่อเริ่มต้น
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="p-4 font-semibold text-gray-600">ชื่อบทความ</th>
+                    <th className="p-4 font-semibold text-gray-600">
+                      ชื่อบทความ
+                    </th>
                     <th className="p-4 font-semibold text-gray-600">Slug</th>
                     <th className="p-4 font-semibold text-gray-600">สถานะ</th>
-                    <th className="p-4 font-semibold text-gray-600">วันที่สร้าง</th>
-                    <th className="p-4 font-semibold text-gray-600 text-center">จัดการ</th>
+                    <th className="p-4 font-semibold text-gray-600">
+                      วันที่สร้าง
+                    </th>
+                    <th className="p-4 font-semibold text-gray-600 text-center">
+                      จัดการ
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -250,7 +275,10 @@ export default function AdminPostsPage() {
                       <td className="p-4 text-center">
                         <div className="flex items-center justify-center gap-2">
                           <button
-                            onClick={() => { setModalMode(post); setModalError(""); }}
+                            onClick={() => {
+                              setEditingPost(post);
+                              setModalError("");
+                            }}
                             className="text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium transition"
                           >
                             แก้ไข
@@ -275,16 +303,18 @@ export default function AdminPostsPage() {
       {/* ============================================================
           Modal: สร้าง / แก้ไขบทความ
           ============================================================ */}
-      {modalMode !== null && (
+      {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800">
-                {isEditMode ? `แก้ไข: ${editingPost?.title}` : "✏️ เขียนบทความใหม่"}
+                {editingPost
+                  ? `แก้ไข: ${editingPost.title}`
+                  : "✏️ เขียนบทความใหม่"}
               </h2>
               <button
-                onClick={() => setModalMode(null)}
+                onClick={closeModal}
                 className="text-gray-400 hover:text-gray-600 text-xl leading-none"
               >
                 ✕
@@ -295,7 +325,7 @@ export default function AdminPostsPage() {
             <div className="overflow-y-auto flex-1 px-6 py-4">
               <form
                 id="post-form"
-                onSubmit={isEditMode ? handleUpdate : handleCreate}
+                onSubmit={editingPost ? handleUpdate : handleCreate}
                 className="space-y-4"
               >
                 {/* Title */}
@@ -312,9 +342,13 @@ export default function AdminPostsPage() {
                     className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                     onChange={(e) => {
                       // Auto-fill slug เฉพาะตอนสร้างใหม่
-                      if (!isEditMode) {
-                        const slugInput = document.querySelector<HTMLInputElement>('input[name="slug"]');
-                        if (slugInput) slugInput.value = generateSlug(e.target.value);
+                      if (!editingPost) {
+                        const slugInput =
+                          document.querySelector<HTMLInputElement>(
+                            'input[name="slug"]',
+                          );
+                        if (slugInput)
+                          slugInput.value = generateSlug(e.target.value);
                       }
                     }}
                   />
@@ -326,7 +360,9 @@ export default function AdminPostsPage() {
                     Slug (URL) <span className="text-red-500">*</span>
                   </label>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-400 whitespace-nowrap">/blog/</span>
+                    <span className="text-sm text-gray-400 whitespace-nowrap">
+                      /blog/
+                    </span>
                     <input
                       name="slug"
                       type="text"
@@ -365,7 +401,7 @@ export default function AdminPostsPage() {
                     placeholder="เขียนเนื้อหาบทความที่นี่..."
                     className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
                   />
-                  {isEditMode && (
+                  {editingPost && (
                     <p className="text-xs text-gray-400 mt-1">
                       * ช่องนี้จะเริ่มว่าง กรุณากรอกเนื้อหาที่ต้องการแก้ไข
                     </p>
@@ -379,7 +415,9 @@ export default function AdminPostsPage() {
                   </label>
                   <select
                     name="published"
-                    defaultValue={editingPost ? String(editingPost.published) : "false"}
+                    defaultValue={
+                      editingPost ? String(editingPost.published) : "false"
+                    }
                     className="w-full border border-gray-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                   >
                     <option value="false">📁 Draft (ยังไม่เผยแพร่)</option>
@@ -400,7 +438,7 @@ export default function AdminPostsPage() {
             <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
               <button
                 type="button"
-                onClick={() => setModalMode(null)}
+                onClick={closeModal}
                 className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm transition"
               >
                 ยกเลิก
@@ -411,7 +449,11 @@ export default function AdminPostsPage() {
                 disabled={isSaving}
                 className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition"
               >
-                {isSaving ? "กำลังบันทึก..." : isEditMode ? "บันทึกการแก้ไข" : "เผยแพร่บทความ"}
+                {isSaving
+                  ? "กำลังบันทึก..."
+                  : editingPost
+                    ? "บันทึกการแก้ไข"
+                    : "เผยแพร่บทความ"}
               </button>
             </div>
           </div>
@@ -425,7 +467,9 @@ export default function AdminPostsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center space-y-4">
             <p className="text-4xl">🗑️</p>
-            <h3 className="text-lg font-bold text-gray-800">ยืนยันการลบบทความ</h3>
+            <h3 className="text-lg font-bold text-gray-800">
+              ยืนยันการลบบทความ
+            </h3>
             <p className="text-sm text-gray-500">
               บทความจะถูกลบออกจากระบบถาวร ไม่สามารถกู้คืนได้
             </p>
