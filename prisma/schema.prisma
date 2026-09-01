@@ -56,3 +56,33 @@ model Post {
 
   @@map("posts")
 }
+
+// ประเภทงานที่รับทำ (สำหรับแสดงผลงาน)
+model Category {
+  id          String      @id @default(uuid())
+  name        String      // "งาน Word", "Excel/บัญชี"
+  slug        String      @unique // "word", "excel"
+  icon        String?     // Emoji หรือ icon URL
+  sortOrder   Int         @default(0) @map("sort_order")
+  portfolios  Portfolio[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  @@map("categories")
+}
+
+// ตัวอย่างผลงาน
+model Portfolio {
+  id          String    @id @default(uuid())
+  categoryId  String    @map("category_id")
+  title       String    // "รายงานวิจัย เรื่อง..."
+  description String?   @db.Text
+  imageUrl    String?   @map("image_url") // URL ภาพตัวอย่าง (ไม่บังคับ — งานเอกสารไม่ต้องมี)
+  published   Boolean   @default(true)
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("portfolios")
+}

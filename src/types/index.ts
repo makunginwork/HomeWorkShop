@@ -40,6 +40,7 @@ export type CreateOrderPayload = {
 export type UpdateOrderPayload = {
   status: OrderStatus;
   fileLink: string;
+  dueDate?: string | null;
 };
 
 // ============================================================
@@ -68,3 +69,59 @@ export type CreatePostPayload = {
 };
 
 export type UpdatePostPayload = Partial<CreatePostPayload>;
+
+// ============================================================
+// Portfolio / Category Types
+// ============================================================
+
+// ประเภทงาน
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  icon?: string | null;
+  sortOrder: number;
+  createdAt: string;
+};
+
+// ประเภทงานพร้อมจำนวนผลงาน
+export type CategoryWithCount = Category & {
+  _count: { portfolios: number };
+};
+
+// ผลงาน
+export type PortfolioItem = {
+  id: string;
+  categoryId: string;
+  title: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  published: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// ผลงานพร้อมข้อมูลประเภทงาน
+export type PortfolioWithCategory = PortfolioItem & {
+  category: Category;
+};
+
+// Payload สำหรับสร้างผลงาน
+export type CreatePortfolioPayload = {
+  categoryId: string;
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  published?: boolean;
+};
+
+export type UpdatePortfolioPayload = Partial<CreatePortfolioPayload>;
+
+// Payload สำหรับสร้างประเภทงาน
+export type CreateCategoryPayload = {
+  name: string;
+  slug: string;
+  icon?: string;
+  sortOrder?: number;
+};
