@@ -90,15 +90,24 @@ export default async function CategoryPortfolioPage({
                   key={item.id}
                   className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition overflow-hidden"
                 >
-                  {/* Image */}
-                  <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.imageUrl}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                    />
-                  </div>
+                  {/* Image or Icon Fallback */}
+                  {item.imageUrl ? (
+                    <div className="aspect-[4/3] overflow-hidden bg-gray-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center gap-2">
+                      <span className="text-5xl">{category.icon || "📁"}</span>
+                      <span className="text-xs text-gray-400 font-medium">
+                        {category.name}
+                      </span>
+                    </div>
+                  )}
 
                   {/* Info */}
                   <div className="p-5">

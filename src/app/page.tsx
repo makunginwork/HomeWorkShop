@@ -25,16 +25,15 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-
       {/* ===== 1. Hero ===== */}
       <section className="bg-gradient-to-br from-blue-50 to-indigo-50 py-20 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-            James <span className="text-blue-600">Workspace</span>
+            ร้านรับจ้างสารพัด <span className="text-blue-600">Workspace</span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            รับทำการบ้าน รายงาน งานเอกสาร ครบทุกวิชา
-            ดำเนินงานด้วยความใส่ใจ ส่งงานตรงเวลา
+            รับทำการบ้าน รายงาน งานเอกสาร ครบทุกวิชา ดำเนินงานด้วยความใส่ใจ
+            ส่งงานตรงเวลา
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
@@ -56,9 +55,15 @@ export default async function HomePage() {
       {/* ===== 2. Nav Bar ===== */}
       <nav className="bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-center gap-6 text-sm font-medium text-gray-600">
-          <Link href="/portfolio" className="hover:text-blue-600 transition">ผลงาน</Link>
-          <Link href="/contact" className="hover:text-blue-600 transition">ติดต่อ</Link>
-          <Link href="/client" className="hover:text-blue-600 transition">เช็คสถานะงาน</Link>
+          <Link href="/portfolio" className="hover:text-blue-600 transition">
+            ผลงาน
+          </Link>
+          <Link href="/contact" className="hover:text-blue-600 transition">
+            ติดต่อ
+          </Link>
+          <Link href="/client" className="hover:text-blue-600 transition">
+            เช็คสถานะงาน
+          </Link>
         </div>
       </nav>
 
@@ -75,7 +80,9 @@ export default async function HomePage() {
                 className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition text-center space-y-2"
               >
                 <span className="text-3xl block">{s.icon}</span>
-                <span className="text-xs font-medium text-gray-700">{s.name}</span>
+                <span className="text-xs font-medium text-gray-700">
+                  {s.name}
+                </span>
               </div>
             ))}
           </div>
@@ -87,7 +94,10 @@ export default async function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-10">
             <h2 className="text-3xl font-bold text-gray-800">ผลงานล่าสุด</h2>
-            <Link href="/portfolio" className="text-blue-600 hover:underline text-sm font-medium">
+            <Link
+              href="/portfolio"
+              className="text-blue-600 hover:underline text-sm font-medium"
+            >
               ดูทั้งหมด →
             </Link>
           </div>
@@ -115,14 +125,20 @@ export default async function HomePage() {
                     </div>
                   ) : (
                     <div className="aspect-[4/3] bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center gap-2">
-                      <span className="text-5xl">{item.category.icon || "📁"}</span>
-                      <span className="text-xs text-gray-400 font-medium">{item.category.name}</span>
+                      <span className="text-5xl">
+                        {item.category.icon || "📁"}
+                      </span>
+                      <span className="text-xs text-gray-400 font-medium">
+                        {item.category.name}
+                      </span>
                     </div>
                   )}
                   <div className="p-4">
                     <div className="flex items-center gap-1.5 mb-1">
                       <span className="text-sm">{item.category.icon}</span>
-                      <span className="text-xs text-gray-400">{item.category.name}</span>
+                      <span className="text-xs text-gray-400">
+                        {item.category.name}
+                      </span>
                     </div>
                     <h3 className="font-bold text-gray-800 text-sm line-clamp-2">
                       {item.title}
@@ -143,9 +159,21 @@ export default async function HomePage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: "⚡", title: "งานเร็ว ทันกำหนด", desc: "รับงานด่วนได้ ส่งงานตรงเวลาทุกครั้ง" },
-              { icon: "✨", title: "คุณภาพเกินราคา", desc: "งานเรียบร้อย ตรวจทุกรายละเอียดก่อนส่ง" },
-              { icon: "🔒", title: "ปลอดภัย เป็นความลับ", desc: "ข้อมูลลูกค้าถูกเก็บเป็นความลับ 100%" },
+              {
+                icon: "⚡",
+                title: "งานเร็ว ทันกำหนด",
+                desc: "รับงานด่วนได้ ส่งงานตรงเวลาทุกครั้ง",
+              },
+              {
+                icon: "✨",
+                title: "คุณภาพเกินราคา",
+                desc: "งานเรียบร้อย ตรวจทุกรายละเอียดก่อนส่ง",
+              },
+              {
+                icon: "🔒",
+                title: "ปลอดภัย เป็นความลับ",
+                desc: "ข้อมูลลูกค้าถูกเก็บเป็นความลับ 100%",
+              },
             ].map((item) => (
               <div
                 key={item.title}
@@ -163,7 +191,9 @@ export default async function HomePage() {
       {/* ===== CTA ===== */}
       <section className="py-16 px-6 bg-gradient-to-br from-blue-600 to-indigo-700">
         <div className="max-w-2xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold text-white">พร้อมสั่งงานแล้วใช่ไหม?</h2>
+          <h2 className="text-3xl font-bold text-white">
+            พร้อมสั่งงานแล้วใช่ไหม?
+          </h2>
           <p className="text-blue-100">ทักมาคุยก่อนได้เลย ปรึกษาฟรี!</p>
           <Link
             href="/contact"
@@ -176,7 +206,9 @@ export default async function HomePage() {
 
       {/* ===== Footer ===== */}
       <footer className="bg-white border-t border-gray-100 py-8 text-center text-gray-500 text-sm">
-        <p>© {new Date().getFullYear()} James Workspace. All rights reserved.</p>
+        <p>
+          © {new Date().getFullYear()} ร้ายรับจ้างสารพัด . All rights reserved.
+        </p>
       </footer>
     </div>
   );

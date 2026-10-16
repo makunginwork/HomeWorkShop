@@ -12,9 +12,18 @@ import type {
 // ============================================================
 function StatusBadge({ status }: { status: OrderStatus }) {
   const map: Record<OrderStatus, { label: string; className: string }> = {
-    PENDING_DEPOSIT: { label: "รอมัดจำ", className: "bg-yellow-100 text-yellow-800" },
-    IN_PROGRESS:    { label: "กำลังดำเนินการ", className: "bg-blue-100 text-blue-800" },
-    DELIVERED:      { label: "ส่งมอบแล้ว", className: "bg-green-100 text-green-800" },
+    PENDING_DEPOSIT: {
+      label: "รอมัดจำ",
+      className: "bg-yellow-100 text-yellow-800",
+    },
+    IN_PROGRESS: {
+      label: "กำลังดำเนินการ",
+      className: "bg-blue-100 text-blue-800",
+    },
+    DELIVERED: {
+      label: "ส่งมอบแล้ว",
+      className: "bg-green-100 text-green-800",
+    },
   };
   const { label, className } = map[status];
   return (
@@ -32,7 +41,9 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(true);
 
   // State: Popup แก้ไข
-  const [editingOrder, setEditingOrder] = useState<OrderWithCustomer | null>(null);
+  const [editingOrder, setEditingOrder] = useState<OrderWithCustomer | null>(
+    null,
+  );
   const [updateError, setUpdateError] = useState("");
 
   // State: Modal ยืนยันลบ
@@ -54,7 +65,9 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   // ============================================================
   // สร้างออเดอร์ใหม่
@@ -63,11 +76,11 @@ export default function AdminDashboard() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const payload: CreateOrderPayload = {
-      lineUid:      formData.get("lineUid") as string,
-      displayName:  formData.get("displayName") as string,
-      title:        formData.get("title") as string,
-      totalPrice:   Number(formData.get("totalPrice")),
-      dueDate:      (formData.get("dueDate") as string) || null,
+      lineUid: formData.get("lineUid") as string,
+      displayName: formData.get("displayName") as string,
+      title: formData.get("title") as string,
+      totalPrice: Number(formData.get("totalPrice")),
+      dueDate: (formData.get("dueDate") as string) || null,
     };
 
     try {
@@ -101,9 +114,9 @@ export default function AdminDashboard() {
     const formData = new FormData(e.currentTarget);
     const dueDateVal = formData.get("dueDate") as string;
     const payload: UpdateOrderPayload = {
-      status:   formData.get("status") as OrderStatus,
+      status: formData.get("status") as OrderStatus,
       fileLink: formData.get("fileLink") as string,
-      dueDate:  dueDateVal || null,
+      dueDate: dueDateVal || null,
     };
 
     try {
@@ -163,45 +176,71 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 relative">
       <div className="max-w-7xl mx-auto space-y-6">
-
         {/* Header */}
-        <header className="bg-white px-6 py-5 rounded-xl shadow-sm border border-gray-100">
-          <h1 className="text-2xl font-bold text-gray-800">ระบบจัดการคิวงาน (Admin)</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
-            ออเดอร์ทั้งหมด: <span className="font-semibold text-gray-600">{orders.length}</span> รายการ
-          </p>
+        <header className="bg-white px-6 py-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">
+              ระบบจัดการคิวงาน (Admin)
+            </h1>
+            <p className="text-sm text-gray-400 mt-0.5">
+              ออเดอร์ทั้งหมด:{" "}
+              <span className="font-semibold text-gray-600">
+                {orders.length}
+              </span>{" "}
+              รายการ
+            </p>
+          </div>
+          <a
+            href="/admin/portfolio"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl transition text-sm"
+          >
+            📸 จัดการผลงาน
+          </a>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
           {/* ===== ฟอร์มสร้างออเดอร์ ===== */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-1 h-fit">
-            <h2 className="text-base font-semibold text-gray-700 mb-4">➕ สร้างออเดอร์ใหม่</h2>
+            <h2 className="text-base font-semibold text-gray-700 mb-4">
+              ➕ สร้างออเดอร์ใหม่
+            </h2>
             <form onSubmit={handleCreate} className="space-y-3">
               <input
-                required name="lineUid" type="text"
+                required
+                name="lineUid"
+                type="text"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 placeholder="UID ลูกค้า (LINE)"
               />
               <input
-                required name="displayName" type="text"
+                required
+                name="displayName"
+                type="text"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 placeholder="ชื่อลูกค้า"
               />
               <input
-                required name="title" type="text"
+                required
+                name="title"
+                type="text"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 placeholder="ชื่องาน"
               />
               <input
-                required name="totalPrice" type="number" min="0"
+                required
+                name="totalPrice"
+                type="number"
+                min="0"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 placeholder="ราคา (บาท)"
               />
               <div>
-                <label className="block text-xs text-gray-400 mb-1">กำหนดส่ง (ไม่บังคับ)</label>
+                <label className="block text-xs text-gray-400 mb-1">
+                  กำหนดส่ง (ไม่บังคับ)
+                </label>
                 <input
-                  name="dueDate" type="datetime-local"
+                  name="dueDate"
+                  type="datetime-local"
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
@@ -216,10 +255,14 @@ export default function AdminDashboard() {
 
           {/* ===== ตารางออเดอร์ ===== */}
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-3">
-            <h2 className="text-base font-semibold text-gray-700 mb-4">📋 คิวงานทั้งหมด</h2>
+            <h2 className="text-base font-semibold text-gray-700 mb-4">
+              📋 คิวงานทั้งหมด
+            </h2>
 
             {isLoading ? (
-              <div className="py-16 text-center text-gray-400">กำลังโหลด...</div>
+              <div className="py-16 text-center text-gray-400">
+                กำลังโหลด...
+              </div>
             ) : orders.length === 0 ? (
               <div className="py-16 text-center text-gray-400">
                 <p className="text-3xl mb-2">📭</p>
@@ -240,11 +283,16 @@ export default function AdminDashboard() {
                   </thead>
                   <tbody className="divide-y divide-gray-50">
                     {orders.map((order) => (
-                      <tr key={order.id} className="hover:bg-gray-50 transition">
+                      <tr
+                        key={order.id}
+                        className="hover:bg-gray-50 transition"
+                      >
                         <td className="px-4 py-3 font-medium text-gray-800">
                           {order.customer.displayName}
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{order.title}</td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {order.title}
+                        </td>
                         <td className="px-4 py-3">
                           <StatusBadge status={order.status} />
                         </td>
@@ -252,7 +300,8 @@ export default function AdminDashboard() {
                           {order.dueDate ? (
                             <span className="text-red-500 text-xs">
                               {new Date(order.dueDate).toLocaleString("th-TH", {
-                                dateStyle: "short", timeStyle: "short",
+                                dateStyle: "short",
+                                timeStyle: "short",
                               })}
                             </span>
                           ) : (
@@ -277,7 +326,10 @@ export default function AdminDashboard() {
                           <div className="flex items-center justify-center gap-2">
                             {/* ปุ่มแก้ไข */}
                             <button
-                              onClick={() => { setEditingOrder(order); setUpdateError(""); }}
+                              onClick={() => {
+                                setEditingOrder(order);
+                                setUpdateError("");
+                              }}
                               className="text-gray-600 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium transition"
                             >
                               ✏️ แก้ไข
@@ -313,19 +365,30 @@ export default function AdminDashboard() {
               <button
                 onClick={() => setEditingOrder(null)}
                 className="text-gray-400 hover:text-gray-600 text-xl"
-              >✕</button>
+              >
+                ✕
+              </button>
             </div>
 
             {/* Body */}
-            <form id="update-form" onSubmit={handleUpdate} className="px-6 py-4 space-y-4">
+            <form
+              id="update-form"
+              onSubmit={handleUpdate}
+              className="px-6 py-4 space-y-4"
+            >
               <p className="text-sm text-gray-500">
-                งาน: <span className="font-semibold text-gray-800">{editingOrder.title}</span>
+                งาน:{" "}
+                <span className="font-semibold text-gray-800">
+                  {editingOrder.title}
+                </span>
                 {" · "}ลูกค้า: {editingOrder.customer.displayName}
               </p>
 
               {/* สถานะ */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">สถานะงาน</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  สถานะงาน
+                </label>
                 <select
                   name="status"
                   defaultValue={editingOrder.status}
@@ -348,7 +411,9 @@ export default function AdminDashboard() {
                   defaultValue={toLocalDatetimeValue(editingOrder.dueDate)}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 />
-                <p className="text-xs text-gray-400 mt-1">เว้นว่างเพื่อล้างค่ากำหนดส่ง</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  เว้นว่างเพื่อล้างค่ากำหนดส่ง
+                </p>
               </div>
 
               {/* ลิงก์ไฟล์ */}
@@ -401,7 +466,9 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center space-y-4">
             <p className="text-4xl">🗑️</p>
-            <h3 className="text-lg font-bold text-gray-800">ยืนยันการลบออเดอร์</h3>
+            <h3 className="text-lg font-bold text-gray-800">
+              ยืนยันการลบออเดอร์
+            </h3>
             <p className="text-sm text-gray-500">
               ออเดอร์จะถูกลบออกถาวร ไม่สามารถกู้คืนได้
             </p>

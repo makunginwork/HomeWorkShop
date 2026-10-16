@@ -53,7 +53,7 @@ export default function ContactPage() {
             </div>
 
             <Link
-              href="https://line.me/ti/p/~YOUR_LINE_ID"
+              href="https://lin.ee/SX2Ndnk"
               target="_blank"
               rel="noreferrer"
               className="block w-full bg-green-500 hover:bg-green-600 text-white font-medium py-4 rounded-xl transition text-lg shadow-lg hover:shadow-xl"

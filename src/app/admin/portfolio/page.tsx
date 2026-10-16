@@ -12,12 +12,11 @@ import type {
 // Main Component
 // ============================================================
 export default function AdminPortfolioPage() {
-  // Data
   const [portfolios, setPortfolios] = useState<PortfolioWithCategory[]>([]);
   const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Tab: "portfolios" | "categories"
+  // Tab
   const [activeTab, setActiveTab] = useState<"portfolios" | "categories">(
     "portfolios",
   );
@@ -29,15 +28,24 @@ export default function AdminPortfolioPage() {
 
   // Modal: Category
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [editingCategory, setEditingCategory] =
+    useState<CategoryWithCount | null>(null);
 
   // Delete confirm
   const [deletingPortfolioId, setDeletingPortfolioId] = useState<string | null>(
+    null,
+  );
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(
     null,
   );
 
   // Modal error
   const [modalError, setModalError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
+  // Upload
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadPreview, setUploadPreview] = useState<string | null>(null);
 
   const isPortfolioModalOpen = isCreatingPortfolio || editingPortfolio !== null;
 
@@ -67,7 +75,9 @@ export default function AdminPortfolioPage() {
     setIsCreatingPortfolio(false);
     setEditingPortfolio(null);
     setIsCreatingCategory(false);
+    setEditingCategory(null);
     setModalError("");
+    setUploadPreview(null);
   };
 
   // ============================================================
@@ -81,8 +91,8 @@ export default function AdminPortfolioPage() {
     const payload: CreatePortfolioPayload = {
       categoryId: fd.get("categoryId") as string,
       title: fd.get("title") as string,
-      imageUrl: fd.get("imageUrl") as string,
       description: (fd.get("description") as string) || undefined,
+      imageUrl: (fd.get("imageUrl") as string) || undefined,
       published: fd.get("published") === "true",
     };
 
@@ -114,8 +124,8 @@ export default function AdminPortfolioPage() {
     const payload: UpdatePortfolioPayload = {
       categoryId: fd.get("categoryId") as string,
       title: fd.get("title") as string,
-      imageUrl: fd.get("imageUrl") as string,
       description: (fd.get("description") as string) || undefined,
+      imageUrl: (fd.get("imageUrl") as string) || undefined,
       published: fd.get("published") === "true",
     };
 
@@ -184,6 +194,53 @@ export default function AdminPortfolioPage() {
       setModalError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleUpdateCategory = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+    setModalError("");
+    setIsSaving(true);
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      name: fd.get("name") as string,
+      slug: fd.get("slug") as string,
+      icon: (fd.get("icon") as string) || null,
+    };
+
+    try {
+      const res = await fetch(`/api/admin/categories/${editingCategory.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        setModalError((await res.json()).error || "ไม่สามารถแก้ไขได้");
+        return;
+      }
+      closeModal();
+      await fetchAll();
+    } catch {
+      setModalError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      const res = await fetch(`/api/admin/categories/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        alert((await res.json()).error || "ลบไม่สำเร็จ");
+        return;
+      }
+      setDeletingCategoryId(null);
+      await fetchAll();
+    } catch {
+      alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
     }
   };
 
@@ -272,7 +329,7 @@ export default function AdminPortfolioPage() {
                 <table className="w-full text-left text-sm">
                   <thead className="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase">
                     <tr>
-                      <th className="px-4 py-3">รูปภาพ</th>
+                      <th className="px-4 py-3">ตัวอย่าง</th>
                       <th className="px-4 py-3">ชื่อผลงาน</th>
                       <th className="px-4 py-3">ประเภท</th>
                       <th className="px-4 py-3">สถานะ</th>
@@ -283,15 +340,28 @@ export default function AdminPortfolioPage() {
                     {portfolios.map((p) => (
                       <tr key={p.id} className="hover:bg-gray-50 transition">
                         <td className="px-4 py-3">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={p.imageUrl}
-                            alt={p.title}
-                            className="w-16 h-12 object-cover rounded-lg bg-gray-100"
-                          />
+                          {p.imageUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={p.imageUrl}
+                              alt={p.title}
+                              className="w-16 h-12 object-cover rounded-lg bg-gray-100"
+                            />
+                          ) : (
+                            <div className="w-16 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-xl">
+                              {p.category.icon || "📁"}
+                            </div>
+                          )}
                         </td>
-                        <td className="px-4 py-3 font-medium text-gray-800 max-w-xs">
-                          <span className="line-clamp-1">{p.title}</span>
+                        <td className="px-4 py-3">
+                          <span className="font-medium text-gray-800 line-clamp-1">
+                            {p.title}
+                          </span>
+                          {p.description && (
+                            <span className="block text-xs text-gray-400 line-clamp-1 mt-0.5">
+                              {p.description}
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
@@ -343,18 +413,39 @@ export default function AdminPortfolioPage() {
               </p>
             </div>
           ) : (
-            <div className="p-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {categories.map((cat) => (
                 <div
                   key={cat.id}
-                  className="bg-gray-50 rounded-xl p-5 flex items-center gap-4 border border-gray-100"
+                  className="bg-gray-50 rounded-xl p-5 border border-gray-100 space-y-3"
                 >
-                  <span className="text-3xl">{cat.icon || "📁"}</span>
-                  <div>
-                    <p className="font-bold text-gray-800">{cat.name}</p>
-                    <p className="text-xs text-gray-400">
-                      /{cat.slug} · {cat._count.portfolios} ผลงาน
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{cat.icon || "📁"}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-gray-800 truncate">
+                        {cat.name}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        /{cat.slug} · {cat._count.portfolios} ผลงาน
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingCategory(cat);
+                        setModalError("");
+                      }}
+                      className="flex-1 text-gray-600 bg-white hover:bg-gray-100 border border-gray-200 px-3 py-1.5 rounded-lg text-xs font-medium transition"
+                    >
+                      ✏️ แก้ไข
+                    </button>
+                    <button
+                      onClick={() => setDeletingCategoryId(cat.id)}
+                      className="text-red-600 bg-white hover:bg-red-50 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-medium transition"
+                    >
+                      🗑️
+                    </button>
                   </div>
                 </div>
               ))}
@@ -435,21 +526,6 @@ export default function AdminPortfolioPage() {
                   />
                 </div>
 
-                {/* URL รูปภาพ */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL รูปภาพ *
-                  </label>
-                  <input
-                    name="imageUrl"
-                    type="url"
-                    required
-                    defaultValue={editingPortfolio?.imageUrl ?? ""}
-                    placeholder="https://..."
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                  />
-                </div>
-
                 {/* รายละเอียด */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -462,6 +538,118 @@ export default function AdminPortfolioPage() {
                     placeholder="คำอธิบายสั้นๆ เกี่ยวกับผลงานชิ้นนี้..."
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none resize-none"
                   />
+                </div>
+
+                {/* รูปภาพ — อัปโหลดจากเครื่อง หรือ ใส่ URL */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    รูปภาพผลงาน (ไม่บังคับ)
+                  </label>
+
+                  {/* ปุ่มเลือกไฟล์จากเครื่อง */}
+                  <div className="mb-2">
+                    <label className="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-gray-100 border border-gray-200 border-dashed rounded-lg px-4 py-3 transition">
+                      <span className="text-lg">📁</span>
+                      <span className="text-sm text-gray-600">
+                        เลือกรูปจากเครื่อง...
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+
+                          // ตรวจสอบขนาด
+                          if (file.size > 5 * 1024 * 1024) {
+                            setModalError("ไฟล์ใหญ่เกิน 5MB");
+                            return;
+                          }
+
+                          setIsUploading(true);
+                          setModalError("");
+
+                          try {
+                            const fd = new FormData();
+                            fd.append("file", file);
+                            const res = await fetch("/api/admin/upload", {
+                              method: "POST",
+                              body: fd,
+                            });
+
+                            if (!res.ok) {
+                              const data = await res.json();
+                              setModalError(data.error || "อัปโหลดไม่สำเร็จ");
+                              return;
+                            }
+
+                            const { url } = await res.json();
+
+                            // ใส่ URL ลง input
+                            const urlInput =
+                              document.querySelector<HTMLInputElement>(
+                                'input[name="imageUrl"]',
+                              );
+                            if (urlInput) {
+                              urlInput.value = url;
+                              // trigger React change
+                              const nativeInputValueSetter =
+                                Object.getOwnPropertyDescriptor(
+                                  window.HTMLInputElement.prototype,
+                                  "value",
+                                )?.set;
+                              nativeInputValueSetter?.call(urlInput, url);
+                              urlInput.dispatchEvent(
+                                new Event("input", { bubbles: true }),
+                              );
+                            }
+
+                            setUploadPreview(url);
+                          } catch {
+                            setModalError("อัปโหลดไม่สำเร็จ");
+                          } finally {
+                            setIsUploading(false);
+                          }
+                        }}
+                      />
+                    </label>
+                    {isUploading && (
+                      <p className="text-xs text-blue-500 mt-1">
+                        ⏳ กำลังอัปโหลด...
+                      </p>
+                    )}
+                  </div>
+
+                  {/* หรือใส่ URL ตรง */}
+                  <input
+                    name="imageUrl"
+                    type="text"
+                    defaultValue={editingPortfolio?.imageUrl ?? ""}
+                    placeholder="หรือวาง URL รูปภาพ เช่น https://..."
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                    onChange={(e) => {
+                      if (e.target.value) setUploadPreview(e.target.value);
+                      else setUploadPreview(null);
+                    }}
+                  />
+
+                  {/* Preview */}
+                  {(uploadPreview || editingPortfolio?.imageUrl) && (
+                    <div className="mt-2 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={uploadPreview || editingPortfolio?.imageUrl || ""}
+                        alt="Preview"
+                        className="w-full max-h-40 object-contain"
+                      />
+                    </div>
+                  )}
+
+                  <p className="text-xs text-gray-400 mt-1">
+                    💡 งาน Word/Excel/PDF ไม่ต้องใส่รูป — ระบบจะแสดง icon
+                    ประเภทงานให้อัตโนมัติ
+                  </p>
                 </div>
 
                 {/* สถานะ */}
@@ -517,14 +705,16 @@ export default function AdminPortfolioPage() {
       )}
 
       {/* ============================================================
-          Modal: สร้างประเภทงาน
+          Modal: สร้าง/แก้ไข ประเภทงาน
           ============================================================ */}
-      {isCreatingCategory && (
+      {(isCreatingCategory || editingCategory) && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-bold text-gray-800">
-                📁 เพิ่มประเภทงาน
+                {editingCategory
+                  ? `✏️ แก้ไข: ${editingCategory.name}`
+                  : "📁 เพิ่มประเภทงาน"}
               </h2>
               <button
                 onClick={closeModal}
@@ -535,7 +725,9 @@ export default function AdminPortfolioPage() {
             </div>
             <form
               id="category-form"
-              onSubmit={handleCreateCategory}
+              onSubmit={
+                editingCategory ? handleUpdateCategory : handleCreateCategory
+              }
               className="px-6 py-4 space-y-4"
             >
               <div>
@@ -547,6 +739,7 @@ export default function AdminPortfolioPage() {
                   type="text"
                   required
                   placeholder="เช่น: งาน Word"
+                  defaultValue={editingCategory?.name ?? ""}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
@@ -559,6 +752,7 @@ export default function AdminPortfolioPage() {
                   type="text"
                   required
                   placeholder="เช่น: word"
+                  defaultValue={editingCategory?.slug ?? ""}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
@@ -570,6 +764,7 @@ export default function AdminPortfolioPage() {
                   name="icon"
                   type="text"
                   placeholder="เช่น: 📄"
+                  defaultValue={editingCategory?.icon ?? ""}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
@@ -593,7 +788,42 @@ export default function AdminPortfolioPage() {
                 disabled={isSaving}
                 className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white rounded-lg text-sm font-medium transition"
               >
-                {isSaving ? "กำลังบันทึก..." : "สร้างประเภทงาน"}
+                {isSaving
+                  ? "กำลังบันทึก..."
+                  : editingCategory
+                    ? "บันทึกการแก้ไข"
+                    : "สร้างประเภทงาน"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+          Modal: ยืนยันลบประเภทงาน
+          ============================================================ */}
+      {deletingCategoryId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center space-y-4">
+            <p className="text-4xl">🗑️</p>
+            <h3 className="text-lg font-bold text-gray-800">
+              ยืนยันการลบประเภทงาน
+            </h3>
+            <p className="text-sm text-gray-500">
+              ถ้ายังมีผลงานอยู่ในประเภทนี้จะลบไม่ได้
+            </p>
+            <div className="flex gap-3 justify-center pt-2">
+              <button
+                onClick={() => setDeletingCategoryId(null)}
+                className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm transition"
+              >
+                ยกเลิก
+              </button>
+              <button
+                onClick={() => handleDeleteCategory(deletingCategoryId)}
+                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition"
+              >
+                ยืนยัน ลบเลย
               </button>
             </div>
           </div>
