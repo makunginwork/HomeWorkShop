@@ -24,7 +24,12 @@ async function getCategoriesWithPortfolios() {
 }
 
 export default async function PortfolioPage() {
-  const categories = await getCategoriesWithPortfolios();
+  let categories: Awaited<ReturnType<typeof getCategoriesWithPortfolios>> = [];
+  try {
+    categories = await getCategoriesWithPortfolios();
+  } catch {
+    // DB ไม่พร้อม
+  }
 
   return (
     <div className="min-h-screen bg-white">

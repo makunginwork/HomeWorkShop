@@ -25,10 +25,14 @@ export async function generateMetadata({
 
 // Pre-render ทุก slug ที่มี
 export async function generateStaticParams() {
-  const categories = await prisma.category.findMany({
-    select: { slug: true },
-  });
-  return categories.map((c) => ({ slug: c.slug }));
+  try {
+    const categories = await prisma.category.findMany({
+      select: { slug: true },
+    });
+    return categories.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
 }
 
 // ดึงข้อมูลประเภทงาน + ผลงานทั้งหมด

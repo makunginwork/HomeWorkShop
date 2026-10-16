@@ -14,14 +14,23 @@ const services = [
   { icon: "🇬🇧", name: "งานภาษาอังกฤษ" },
 ];
 
-export default async function HomePage() {
-  // ดึงผลงานล่าสุด 6 ชิ้น
-  const latestWorks = await prisma.portfolio.findMany({
+async function getLatestWorks() {
+  return prisma.portfolio.findMany({
     where: { published: true },
     orderBy: { createdAt: "desc" },
     take: 6,
     include: { category: { select: { name: true, icon: true } } },
   });
+}
+
+export default async function HomePage() {
+  // ดึงผลงานล่าสุด 6 ชิ้น (try-catch กัน build พังถ้า DB ยังไม่พร้อม)
+  let latestWorks: Awaited<ReturnType<typeof getLatestWorks>> = [];
+  try {
+    latestWorks = await getLatestWorks();
+  } catch {
+    // DB ไม่พร้อมตอน build — แสดงหน้าโดยไม่มีผลงาน
+  }
 
   return (
     <div className="min-h-screen bg-white">

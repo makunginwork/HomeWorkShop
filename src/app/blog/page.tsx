@@ -28,7 +28,12 @@ async function getPublishedPosts() {
 }
 
 export default async function BlogPage() {
-  const posts = await getPublishedPosts();
+  let posts: Awaited<ReturnType<typeof getPublishedPosts>> = [];
+  try {
+    posts = await getPublishedPosts();
+  } catch {
+    // DB ไม่พร้อม
+  }
 
   return (
     <div className="min-h-screen bg-white">

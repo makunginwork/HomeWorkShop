@@ -35,11 +35,15 @@ export async function generateMetadata({
 // generateStaticParams — Pre-render ทุก slug ที่ published ไว้ล่วงหน้า
 // ============================================================
 export async function generateStaticParams() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    select: { slug: true },
-  });
-  return posts.map((post) => ({ slug: post.slug }));
+  try {
+    const posts = await prisma.post.findMany({
+      where: { published: true },
+      select: { slug: true },
+    });
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch {
+    return [];
+  }
 }
 
 // ============================================================
