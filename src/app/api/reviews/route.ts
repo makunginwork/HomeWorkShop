@@ -13,10 +13,14 @@ export async function GET() {
       take: 50,
     });
     return NextResponse.json(reviews);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching reviews:", error);
     return NextResponse.json(
-      { error: "ไม่สามารถดึงข้อมูลรีวิวได้" },
+      {
+        error: "ไม่สามารถดึงข้อมูลรีวิวได้",
+        details: error?.message || String(error),
+        code: error?.code,
+      },
       { status: 500 }
     );
   }
