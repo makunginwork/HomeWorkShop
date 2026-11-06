@@ -7,14 +7,15 @@ export const revalidate = 0;
 
 // หมวดหมู่บริการทั้งหมดที่รับทำ
 const services = [
-  { icon: "📊", name: "บัญชี & การเงิน", slug: "accounting" },
-  { icon: "📑", name: "แผนธุรกิจ & ตลาด", slug: "business-plan" },
-  { icon: "📈", name: "สถิติ & SPSS", slug: "spss-research" },
-  { icon: "📄", name: "รายงาน & วิชาการ", slug: "reports" },
-  { icon: "🎨", name: "สไลด์ & Canva", slug: "presentation" },
-  { icon: "⚙️", name: "วิศวกรรม & คำนวณ", slug: "engineering" },
-  { icon: "⚖️", name: "กฎหมายธุรกิจ", slug: "law" },
-  { icon: "✏️", name: "แบบฝึกหัด & ใบงาน", slug: "assignments" },
+  { icon: "📗", name: "งานคำนวณ & Excel", slug: "excel-models", format: "Excel .xlsx ผูกสูตร" },
+  { icon: "📊", name: "บัญชี & การเงิน", slug: "accounting", format: "สมุดรายวัน · งบการเงิน" },
+  { icon: "📑", name: "แผนธุรกิจ & ตลาด", slug: "business-plan", format: "BMC · 7Ps · แผนธุรกิจ" },
+  { icon: "📈", name: "สถิติ & SPSS", slug: "spss-research", format: "SPSS .sav · แปลผลวิจัย" },
+  { icon: "📄", name: "รายงาน & วิชาการ", slug: "reports", format: "Word .docx · จัดเล่ม APA" },
+  { icon: "🎨", name: "สไลด์ & Canva", slug: "presentation", format: "PowerPoint · Canva Deck" },
+  { icon: "⚙️", name: "วิศวกรรม & คำนวณ", slug: "engineering", format: "โมเดลทดสอบ · คำนวณแล็บ" },
+  { icon: "⚖️", name: "กฎหมายธุรกิจ", slug: "law", format: "Mind Map สรุปกฎหมาย" },
+  { icon: "✏️", name: "แบบฝึกหัด & ใบงาน", slug: "assignments", format: "วิธีทำละเอียด · ข้อสอบแล็บ" },
 ];
 
 async function getLatestWorks() {
@@ -100,15 +101,15 @@ export default async function HomePage() {
               บริการที่รับทำทั้งหมด
             </h2>
             <p className="text-gray-500 text-sm">
-              ครอบคลุมทุกระดับชั้น มัธยม มหาวิทยาลัย และงานทั่วไป
+              ครอบคลุมทุกระดับชั้น มัธยม มหาวิทยาลัย และงานทั่วไป แยกตามสาขาวิชา
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {services.map((s) => (
               <Link
                 key={s.slug}
                 href={`/portfolio/${s.slug}`}
-                className="group bg-white p-5 rounded-2xl border border-gray-100 shadow-xs hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 transition text-center space-y-2.5 block"
+                className="group bg-white p-5 rounded-2xl border border-gray-100 shadow-xs hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 transition text-center space-y-2 block"
               >
                 <span className="text-3xl block transform group-hover:scale-110 transition duration-300">
                   {s.icon}
@@ -116,8 +117,108 @@ export default async function HomePage() {
                 <span className="text-sm font-semibold text-gray-800 group-hover:text-blue-600 transition block">
                   {s.name}
                 </span>
+                <span className="text-[11px] text-gray-400 group-hover:text-gray-600 transition block">
+                  {s.format}
+                </span>
               </Link>
             ))}
+          </div>
+
+          {/* Quick Filter By Software / Program (เพิ่มความชัดเจนให้ลูกค้าเลือกดูง่าย) */}
+          <div className="mt-14 pt-10 border-t border-gray-100">
+            <div className="text-center space-y-1 mb-8">
+              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-wider">
+                Software & Deliverables
+              </span>
+              <h3 className="text-2xl font-bold text-gray-800">
+                เลือกดูผลงานตามโปรแกรมที่ต้องการสั่งทำ
+              </h3>
+              <p className="text-xs text-gray-400">
+                ลูกค้าสามารถเลือกดูตัวอย่างงานแยกตามประเภทไฟล์และโปรแกรมได้ทันที
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+              <Link
+                href="/portfolio/excel-models"
+                className="group bg-gradient-to-b from-emerald-50/50 to-white p-4 rounded-xl border border-emerald-100/80 hover:border-emerald-300 hover:shadow-md transition text-center space-y-2 block"
+              >
+                <span className="text-3xl block">📗</span>
+                <p className="text-sm font-bold text-gray-900 group-hover:text-emerald-700 transition">
+                  งาน Excel (.xlsx)
+                </p>
+                <p className="text-[11px] text-gray-500 leading-snug">
+                  ผูกสูตรคำนวณอัตโนมัติ, CVP, จุดคุ้มทุน, งบประมาณ, โมเดลธุรกิจ
+                </p>
+                <span className="inline-block text-[10px] text-emerald-600 font-semibold group-hover:underline">
+                  ดูผลงาน Excel →
+                </span>
+              </Link>
+
+              <Link
+                href="/portfolio/reports"
+                className="group bg-gradient-to-b from-blue-50/50 to-white p-4 rounded-xl border border-blue-100/80 hover:border-blue-300 hover:shadow-md transition text-center space-y-2 block"
+              >
+                <span className="text-3xl block">📘</span>
+                <p className="text-sm font-bold text-gray-900 group-hover:text-blue-700 transition">
+                  งานเขียน Word (.docx)
+                </p>
+                <p className="text-[11px] text-gray-500 leading-snug">
+                  รายงานวิชาการ, ภาคนิพนธ์, สารบัญอัตโนมัติ, อ้างอิง APA 7th
+                </p>
+                <span className="inline-block text-[10px] text-blue-600 font-semibold group-hover:underline">
+                  ดูผลงาน Word →
+                </span>
+              </Link>
+
+              <Link
+                href="/portfolio/presentation"
+                className="group bg-gradient-to-b from-purple-50/50 to-white p-4 rounded-xl border border-purple-100/80 hover:border-purple-300 hover:shadow-md transition text-center space-y-2 block"
+              >
+                <span className="text-3xl block">🎨</span>
+                <p className="text-sm font-bold text-gray-900 group-hover:text-purple-700 transition">
+                  สไลด์ Canva / PPTX
+                </p>
+                <p className="text-[11px] text-gray-500 leading-snug">
+                  สไลด์นำเสนอฝึกงาน, โครงงานธุรกิจ, Pitch Deck ดีไซน์สวยงาม
+                </p>
+                <span className="inline-block text-[10px] text-purple-600 font-semibold group-hover:underline">
+                  ดูผลงานสไลด์ →
+                </span>
+              </Link>
+
+              <Link
+                href="/portfolio/spss-research"
+                className="group bg-gradient-to-b from-amber-50/50 to-white p-4 rounded-xl border border-amber-100/80 hover:border-amber-300 hover:shadow-md transition text-center space-y-2 block"
+              >
+                <span className="text-3xl block">📈</span>
+                <p className="text-sm font-bold text-gray-900 group-hover:text-amber-700 transition">
+                  สถิติวิจัย SPSS (.sav)
+                </p>
+                <p className="text-[11px] text-gray-500 leading-snug">
+                  รันผลสถิติ, Cronbach, ANOVA, Regression, ตารางสรุปผลวิจัย
+                </p>
+                <span className="inline-block text-[10px] text-amber-600 font-semibold group-hover:underline">
+                  ดูผลงาน SPSS →
+                </span>
+              </Link>
+
+              <Link
+                href="/portfolio/assignments"
+                className="group bg-gradient-to-b from-rose-50/50 to-white p-4 rounded-xl border border-rose-100/80 hover:border-rose-300 hover:shadow-md transition text-center space-y-2 block"
+              >
+                <span className="text-3xl block">✏️</span>
+                <p className="text-sm font-bold text-gray-900 group-hover:text-rose-700 transition">
+                  แบบฝึกหัด & ใบงาน
+                </p>
+                <p className="text-[11px] text-gray-500 leading-snug">
+                  แสดงวิธีทำละเอียดทุกขั้นตอน, ดิจิทัลลอจิก, ข้อสอบแล็บคอม
+                </p>
+                <span className="inline-block text-[10px] text-rose-600 font-semibold group-hover:underline">
+                  ดูผลงานใบงาน →
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

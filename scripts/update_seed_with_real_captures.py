@@ -66,6 +66,21 @@ portfolios = [
             "/uploads/portfolio/cap_excel_finratio_04.png"
         ]
     },
+    {
+        "categorySlug": "excel-models",
+        "title": "แบบจำลองการเงินและระบบบัญชีต้นทุน ร้าน Holy Beef Burger (Excel Financial Model)",
+        "slug": "excel-holybeef-model",
+        "description": "แบบจำลองทางการเงินและการจัดทำบัญชีธุรกิจร้านอาหารบริการด่วนพรีเมียมบน Microsoft Excel (.xlsx):\n• ขั้นตอนที่ 1 (Investment & Transaction): กำหนดเงินลงทุนเริ่มต้น และบันทึกรายการค้าเปิดร้าน\n• ขั้นตอนที่ 2 (General Journal): สมุดรายวันทั่วไปผูกสูตรบันทึกเดบิต-เครดิต\n• ขั้นตอนที่ 3 (General Ledger): บัญชีแยกประเภททั่วไปแยกตามหมวดหมู่สินทรัพย์ หนี้สิน ทุน รายได้ ค่าใช้จ่าย\n• ขั้นตอนที่ 4 (Income Statement): งบกำไรขาดทุนเบ็ดเสร็จแสดงโครงสร้างต้นทุนอาหาร (Food Cost Control)\n• ขั้นตอนที่ 5 (BEP & ARR): การวิเคราะห์จุดคุ้มทุน (Break-Even Point) และอัตราผลตอบแทนทางการบัญชี (ARR)\nตรวจสอบความถูกต้องของสูตรคำนวณทุกจุด พร้อมตารางผูกโยงยอดอัตโนมัติ",
+        "tags": "Excel, แผนการเงิน, ร้านอาหาร, Food Cost, ระบบบัญชี, สมุดรายวัน, จุดคุ้มทุน, ARR",
+        "sortOrder": 5,
+        "images": [
+            "/uploads/portfolio/cap_dl_beef_01.png",
+            "/uploads/portfolio/cap_dl_beef_02.png",
+            "/uploads/portfolio/cap_dl_beef_03.png",
+            "/uploads/portfolio/cap_dl_beef_04.png",
+            "/uploads/portfolio/cap_dl_beef_05.png"
+        ]
+    },
 
     # ============================================================
     # 1. การบัญชีและการเงิน (accounting)
@@ -245,6 +260,21 @@ portfolios = [
         "sortOrder": 3,
         "images": captured.get("pres-green-entrepreneur", [])
     },
+    {
+        "categorySlug": "presentation",
+        "title": "สไลด์นำเสนอสรุปผลการปฏิบัติงานสหกิจศึกษาและการฝึกงาน (Internship Presentation Deck)",
+        "slug": "pres-internship-deck",
+        "description": "ชุดสไลด์นำเสนอผลการฝึกงานระดับพรีเมียม ออกแบบด้วย PowerPoint & Canva:\n• ขั้นตอนที่ 1: หน้าปกสไลด์นำเสนอสหกิจศึกษา ดีไซน์ทางการตามระเบียบมหาวิทยาลัย\n• ขั้นตอนที่ 2: สารบัญและหัวข้อการนำเสนอ (Agenda & Presentation Structure)\n• ขั้นตอนที่ 3: รายละเอียดบทบาท หน้าที่ความรับผิดชอบ และการปฏิบัติงานจริงในองค์กร\n• ขั้นตอนที่ 4: โครงงานที่ได้รับมอบหมาย ผลสำเร็จ และการประยุกต์ใช้ความรู้จากห้องเรียน\n• ขั้นตอนที่ 5: สรุปทักษะที่ได้รับ ปัญหาอุปสรรค และข้อเสนอแนะสำหรับการฝึกงานรุ่นต่อไป",
+        "tags": "PowerPoint, Canva, นำเสนอฝึกงาน, สหกิจศึกษา, สไลด์พรีเซนต์, Presentation Deck, Portfolio",
+        "sortOrder": 4,
+        "images": [
+            "/uploads/portfolio/cap_dl_intern_01.png",
+            "/uploads/portfolio/cap_dl_intern_02.png",
+            "/uploads/portfolio/cap_dl_intern_03.png",
+            "/uploads/portfolio/cap_dl_intern_04.png",
+            "/uploads/portfolio/cap_dl_intern_05.png"
+        ]
+    },
 
     # ============================================================
     # 6. วิศวกรรมและวิชาคำนวณ (engineering)
@@ -266,6 +296,33 @@ portfolios = [
         "tags": "Weibull Distribution, สถิติวิศวกรรม, ความน่าจะเป็นของการแตกหัก, Weibull Modulus, ความเชื่อถือได้",
         "sortOrder": 2,
         "images": captured.get("eng-weibull-analysis", [])
+    },
+    {
+        "categorySlug": "engineering",
+        "title": "แบบจำลองการทดสอบแรงดึงวัสดุพอลิเมอร์ Tensile Test และ Stress-Strain Curve บน Excel",
+        "slug": "eng-tensile-excel",
+        "description": "ไฟล์ Excel และรายงานการวิเคราะห์คุณสมบัติเชิงกลของวัสดุฟิล์มพลาสติก HDPE และ PP:\n• ขั้นตอนที่ 1: ตารางบันทึกข้อมูลการทดสอบแรงดึงดิบ (Raw Tensile Test Data)\n• ขั้นตอนที่ 2: กราฟเส้นโค้งความเค้น-ความเครียด (Stress-Strain Curve) เปรียบเทียบ 3 ตัวอย่าง\n• ขั้นตอนที่ 3: ตารางคำนวณและสรุปค่า Yield Strength, Tensile Strength และ Elongation at Break (%)\nผูกสูตรคำนวณความสัมพันธ์ทางวิศวกรรมวัสดุศาสตร์อย่างแม่นยำตามมาตรฐานการทดสอบ",
+        "tags": "Excel, วิศวกรรมวัสดุ, พอลิเมอร์, Tensile Test, Stress-Strain, Yield Strength, การทดสอบแรงดึง",
+        "sortOrder": 3,
+        "images": [
+            "/uploads/portfolio/cap_dl_tensile_01.png",
+            "/uploads/portfolio/cap_dl_tensile_02.png",
+            "/uploads/portfolio/cap_dl_tensile_03.png"
+        ]
+    },
+    {
+        "categorySlug": "engineering",
+        "title": "การบ้านและโจทย์คำนวณวิศวกรรมพลังงานชีวมวลและไบโอดีเซล (Biomass Energy HW)",
+        "slug": "eng-biomass-hw",
+        "description": "รายงานและโจทย์คำนวณวิศวกรรมพลังงานทดแทน:\n• ขั้นตอนที่ 1: โจทย์และการวิเคราะห์สมดุลมวลและพลังงาน (Mass & Energy Balance)\n• ขั้นตอนที่ 2: การคำนวณกระบวนการไพโรไลซิสและการสังเคราะห์ก๊าซชีวมวล\n• ขั้นตอนที่ 3: แบบจำลองปฏิกิริยาทรานส์เอสเทอริฟิเคชันในการผลิตไบโอดีเซล\n• ขั้นตอนที่ 4: สรุปผลการคำนวณ ประสิทธิภาพเชิงความร้อน และการลดการปล่อยคาร์บอน",
+        "tags": "วิศวกรรม, ชีวมวล, ไบโอดีเซล, พลังงานทดแทน, Mass Balance, การบ้านวิศวะ",
+        "sortOrder": 4,
+        "images": [
+            "/uploads/portfolio/cap_dl_biomass_01.png",
+            "/uploads/portfolio/cap_dl_biomass_02.png",
+            "/uploads/portfolio/cap_dl_biomass_03.png",
+            "/uploads/portfolio/cap_dl_biomass_04.png"
+        ]
     },
 
     # ============================================================
@@ -328,6 +385,49 @@ portfolios = [
         "tags": "ใบงาน, Take-Home, แบบฝึกหัด, การคำนวณ, การบ้าน, แสดงวิธีทำ",
         "sortOrder": 4,
         "images": captured.get("ass-takehome-worksheet", [])
+    },
+    {
+        "categorySlug": "assignments",
+        "title": "คู่มือสรุปสูตรและเฉลยข้อสอบตรรกศาสตร์ดิจิทัล CS121 (Digital Logic & Smart Devices Guide)",
+        "slug": "assign-cs121-guide",
+        "description": "เอกสารสรุปสูตรและเฉลยข้อสอบปฏิบัติการฉบับสมบูรณ์ (Ultimate Exam & Lab Guide) จัดทำด้วย Microsoft Word (.docx):\n• ขั้นตอนที่ 1: หน้าปกและภาพรวมเนื้อหาการสอบวิชา CS121 ตรรกศาสตร์ดิจิทัล\n• ขั้นตอนที่ 2: สรุปสูตรจำเป็น (Formula & Cheat Sheet) ระบบตัวเลข แคลคูลัสสัญญาณ และแบนด์วิดท์\n• ขั้นตอนที่ 3: การวิเคราะห์และลดรูปลอจิกเกตด้วยพีชคณิตบูลีน (Boolean Algebra) และ Karnaugh Map\n• ขั้นตอนที่ 4: เฉลยข้อสอบแล็บการต่อวงจรเสมือนจริงพร้อมตารางความจริง (Truth Table)\n• ขั้นตอนที่ 5: สรุปเทคนิคการทำข้อสอบและการประยุกต์ใช้งานอุปกรณ์อัจฉริยะ",
+        "tags": "Word, CS121, ตรรกศาสตร์ดิจิทัล, Karnaugh Map, Boolean Algebra, เฉลยข้อสอบ, Cheat Sheet",
+        "sortOrder": 5,
+        "images": [
+            "/uploads/portfolio/cap_dl_cs121_01.png",
+            "/uploads/portfolio/cap_dl_cs121_02.png",
+            "/uploads/portfolio/cap_dl_cs121_03.png",
+            "/uploads/portfolio/cap_dl_cs121_04.png",
+            "/uploads/portfolio/cap_dl_cs121_05.png"
+        ]
+    },
+    {
+        "categorySlug": "assignments",
+        "title": "ใบงานและเฉลยการออกแบบวงจรเชิงลำดับและฟลิปฟลอป (Sequential Circuit & Flip-Flop)",
+        "slug": "assign-seq-logic",
+        "description": "ใบงานและเฉลยวิธีทำอย่างละเอียด วิชาตรรกศาสตร์ดิจิทัล:\n• ขั้นตอนที่ 1: หัวข้อใบงานและโจทย์การออกแบบวงจรเชิงลำดับ\n• ขั้นตอนที่ 2: การจำลองการทำงานของ T Flip-Flop และการเขียน Timing Diagram\n• ขั้นตอนที่ 3: การออกแบบวงจรนับทิศทางเดียว (Single Direction Counter) พร้อมเซนเซอร์ตรวจจับ\n• ขั้นตอนที่ 4: ไดอะแกรมสถานะ (State Diagram) และตารางการเปลี่ยนสถานะ (Next-State Table)",
+        "tags": "Word, Flip-Flop, Sequential Circuit, Timing Diagram, ดิจิทัลลอจิก, ใบงาน, แสดงวิธีทำ",
+        "sortOrder": 6,
+        "images": [
+            "/uploads/portfolio/cap_dl_seqlogic_01.png",
+            "/uploads/portfolio/cap_dl_seqlogic_02.png",
+            "/uploads/portfolio/cap_dl_seqlogic_03.png",
+            "/uploads/portfolio/cap_dl_seqlogic_04.png"
+        ]
+    },
+    {
+        "categorySlug": "assignments",
+        "title": "ใบงานการวิเคราะห์และลดรูปลอจิกเกต (Logic Gate Simplification & Truth Table)",
+        "slug": "assign-logic-gate",
+        "description": "ใบงานเฉลยแบบฝึกหัดการต่อวงจรและลดรูปสมการตรรกศาสตร์:\n• ขั้นตอนที่ 1: แผนผังวงจรลอจิกพื้นฐาน AND, OR, NOT, NAND, NOR\n• ขั้นตอนที่ 2: ตารางความจริง (Truth Table) แสดงสถานะเอาต์พุตทุกกรณี\n• ขั้นตอนที่ 3: การลดรูปสมการด้วยทฤษฎีบทเดอมอร์แกน (De Morgan's Laws)\n• ขั้นตอนที่ 4: การต่อวงจรจริงและการทดสอบลอจิก 0 และ 1",
+        "tags": "Word, Logic Gate, Truth Table, De Morgan, ลอจิกเกต, ใบงาน, เฉลยวิธีทำ",
+        "sortOrder": 7,
+        "images": [
+            "/uploads/portfolio/cap_dl_logicgate_01.png",
+            "/uploads/portfolio/cap_dl_logicgate_02.png",
+            "/uploads/portfolio/cap_dl_logicgate_03.png",
+            "/uploads/portfolio/cap_dl_logicgate_04.png"
+        ]
     }
 ]
 
