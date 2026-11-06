@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 // Fallback environment variables if not set in Vercel UI
 const defaultDbUrl =
-  "postgresql://neondb_owner:npg_c9b7sWjKlhRP@ep-frosty-fire-ayfgc4d4-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+  "postgresql://neondb_owner:npg_1hcZf4ptaTYL@ep-frosty-fire-ayfgc4d4-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = defaultDbUrl;

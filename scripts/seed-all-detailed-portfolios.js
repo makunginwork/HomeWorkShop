@@ -2,7 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
+const fallbackDbUrl =
+  'postgresql://neondb_owner:npg_1hcZf4ptaTYL@ep-frosty-fire-ayfgc4d4-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = fallbackDbUrl;
+}
+
+const prisma = new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL || fallbackDbUrl,
+});
 const srcBase = 'C:\\แฟนฉัน\\งานรับจ้าง';
 const destBase = path.join(process.cwd(), 'public', 'uploads', 'portfolio');
 
@@ -11,9 +20,13 @@ if (!fs.existsSync(destBase)) {
 }
 
 function copySafe(srcRelPath, destFileName) {
-  const fullSrc = path.join(srcBase, srcRelPath);
   const fullDest = path.join(destBase, destFileName);
   try {
+    // If already in public/uploads/portfolio, use it directly (works on Vercel!)
+    if (fs.existsSync(fullDest)) {
+      return `/uploads/portfolio/${destFileName}`;
+    }
+    const fullSrc = path.join(srcBase, srcRelPath);
     if (fs.existsSync(fullSrc)) {
       fs.copyFileSync(fullSrc, fullDest);
       return `/uploads/portfolio/${destFileName}`;

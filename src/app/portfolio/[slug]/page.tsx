@@ -27,18 +27,6 @@ export async function generateMetadata({
   };
 }
 
-// Pre-render ทุก slug ที่มี
-export async function generateStaticParams() {
-  try {
-    const categories = await prisma.category.findMany({
-      select: { slug: true },
-    });
-    return categories.map((c) => ({ slug: c.slug }));
-  } catch {
-    return [];
-  }
-}
-
 // ดึงข้อมูลประเภทงาน + ผลงานทั้งหมด พร้อมรูปภาพประกอบ (สำหรับ IG-style Lightbox)
 async function getCategoryWithPortfolios(slug: string) {
   try {

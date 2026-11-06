@@ -2,6 +2,9 @@ import Link from "next/link";
 import prisma from "@/lib/db";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Blog | James Workspace",
   description: "บทความและความรู้จาก James Workspace",

@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // ============================================================
 // generateMetadata — SEO แบบ Dynamic ต่อบทความ
 // ============================================================
@@ -29,21 +32,6 @@ export async function generateMetadata({
       description: post.content.slice(0, 160).replace(/\n/g, " "),
     },
   };
-}
-
-// ============================================================
-// generateStaticParams — Pre-render ทุก slug ที่ published ไว้ล่วงหน้า
-// ============================================================
-export async function generateStaticParams() {
-  try {
-    const posts = await prisma.post.findMany({
-      where: { published: true },
-      select: { slug: true },
-    });
-    return posts.map((post) => ({ slug: post.slug }));
-  } catch {
-    return [];
-  }
 }
 
 // ============================================================
