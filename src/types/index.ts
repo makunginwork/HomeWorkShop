@@ -89,6 +89,15 @@ export type CategoryWithCount = Category & {
   _count: { portfolios: number };
 };
 
+// รูปภาพเพิ่มเติมของผลงาน
+export type PortfolioImage = {
+  id: string;
+  portfolioId: string;
+  imageUrl: string;
+  sortOrder: number;
+  createdAt: string;
+};
+
 // ผลงาน
 export type PortfolioItem = {
   id: string;
@@ -100,11 +109,13 @@ export type PortfolioItem = {
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
+  images?: PortfolioImage[];
 };
 
 // ผลงานพร้อมข้อมูลประเภทงาน
 export type PortfolioWithCategory = PortfolioItem & {
   category: Category;
+  images?: PortfolioImage[];
 };
 
 // Payload สำหรับสร้างผลงาน
@@ -114,6 +125,7 @@ export type CreatePortfolioPayload = {
   description?: string;
   imageUrl?: string;
   published?: boolean;
+  images?: string[];
 };
 
 export type UpdatePortfolioPayload = Partial<CreatePortfolioPayload>;
@@ -124,4 +136,22 @@ export type CreateCategoryPayload = {
   slug: string;
   icon?: string;
   sortOrder?: number;
+};
+
+// รีวิวจากลูกค้า
+export type Review = {
+  id: string;
+  authorName: string;
+  rating: number;
+  comment: string;
+  lineUid?: string | null;
+  visible: boolean;
+  createdAt: string;
+};
+
+export type CreateReviewPayload = {
+  authorName: string;
+  rating: number;
+  comment: string;
+  lineUid?: string;
 };

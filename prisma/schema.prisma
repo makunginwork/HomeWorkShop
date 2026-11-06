@@ -72,17 +72,44 @@ model Category {
 
 // ตัวอย่างผลงาน
 model Portfolio {
-  id          String    @id @default(uuid())
-  categoryId  String    @map("category_id")
-  title       String    // "รายงานวิจัย เรื่อง..."
-  description String?   @db.Text
-  imageUrl    String?   @map("image_url") // URL ภาพตัวอย่าง (ไม่บังคับ — งานเอกสารไม่ต้องมี)
-  published   Boolean   @default(true)
-  sortOrder   Int       @default(0) @map("sort_order")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  id          String           @id @default(uuid())
+  categoryId  String           @map("category_id")
+  title       String           // "รายงานวิจัย เรื่อง..."
+  description String?          @db.Text
+  imageUrl    String?          @map("image_url") // URL ภาพตัวอย่างหน้าปก (ไม่บังคับ — งานเอกสารไม่ต้องมี)
+  published   Boolean          @default(true)
+  sortOrder   Int              @default(0) @map("sort_order")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
 
-  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  category    Category         @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  images      PortfolioImage[]
 
   @@map("portfolios")
+}
+
+// รูปภาพเพิ่มเติมของผลงาน (สำหรับสไลด์ดูรูปหลายๆ รูปแบบ IG)
+model PortfolioImage {
+  id          String    @id @default(uuid())
+  portfolioId String    @map("portfolio_id")
+  imageUrl    String    @map("image_url")
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@map("portfolio_images")
+}
+
+// รีวิวและคะแนนจากลูกค้า
+model Review {
+  id         String   @id @default(uuid())
+  authorName String   @map("author_name")
+  rating     Int      @default(5)
+  comment    String   @db.Text
+  lineUid    String?  @map("line_uid")
+  visible    Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("reviews")
 }

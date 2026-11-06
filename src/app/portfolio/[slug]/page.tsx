@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
 import type { Metadata } from "next";
+import PortfolioGallery from "@/components/PortfolioGallery";
 
 // Dynamic SEO Metadata
 export async function generateMetadata({
@@ -35,17 +36,26 @@ export async function generateStaticParams() {
   }
 }
 
-// ดึงข้อมูลประเภทงาน + ผลงานทั้งหมด
+// ดึงข้อมูลประเภทงาน + ผลงานทั้งหมด พร้อมรูปภาพประกอบ (สำหรับ IG-style Lightbox)
 async function getCategoryWithPortfolios(slug: string) {
-  return prisma.category.findUnique({
-    where: { slug },
-    include: {
-      portfolios: {
-        where: { published: true },
-        orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+  try {
+    return await prisma.category.findUnique({
+      where: { slug },
+      include: {
+        portfolios: {
+          where: { published: true },
+          orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }],
+          include: {
+            images: {
+              orderBy: { sortOrder: "asc" },
+            },
+          },
+        },
       },
-    },
-  });
+    });
+  } catch {
+    return null;
+  }
 }
 
 export default async function CategoryPortfolioPage({
@@ -60,6 +70,17 @@ export default async function CategoryPortfolioPage({
     notFound();
   }
 
+  // Format portfolios with images
+  const formattedPortfolios = category.portfolios.map((p) => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+    updatedAt: p.updatedAt.toISOString(),
+    images: p.images.map((img) => ({
+      ...img,
+      createdAt: img.createdAt.toISOString(),
+    })),
+  }));
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -69,83 +90,46 @@ export default async function CategoryPortfolioPage({
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
             ผลงาน{category.name}
           </h1>
-          <p className="text-gray-600">{category.portfolios.length} ผลงาน</p>
+          <p className="text-gray-600">
+            {category.portfolios.length} ผลงานตัวอย่าง · คลิกที่การ์ดเพื่อดูรูปภาพสไลด์และรายละเอียด
+          </p>
           <Link
             href="/portfolio"
-            className="inline-block text-sm text-blue-600 hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition hover:underline"
           >
             ← ดูประเภทงานทั้งหมด
           </Link>
         </div>
       </section>
 
-      {/* Portfolio Grid */}
+      {/* Interactive Portfolio Grid & Instagram-Style Lightbox */}
       <section className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
-          {category.portfolios.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-4xl mb-4">📂</p>
-              <p className="text-gray-500">ยังไม่มีผลงานในประเภทนี้</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {category.portfolios.map((item) => (
-                <div
-                  key={item.id}
-                  className="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition overflow-hidden"
-                >
-                  {/* Image or Icon Fallback */}
-                  {item.imageUrl ? (
-                    <div className="aspect-[4/3] overflow-hidden bg-gray-100">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.imageUrl}
-                        alt={item.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                      />
-                    </div>
-                  ) : (
-                    <div className="aspect-[4/3] bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center gap-2">
-                      <span className="text-5xl">{category.icon || "📁"}</span>
-                      <span className="text-xs text-gray-400 font-medium">
-                        {category.name}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Info */}
-                  <div className="p-5">
-                    <h3 className="font-bold text-gray-900 mb-1 line-clamp-2">
-                      {item.title}
-                    </h3>
-                    {item.description && (
-                      <p className="text-sm text-gray-500 line-clamp-2">
-                        {item.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <PortfolioGallery
+            portfolios={formattedPortfolios}
+            categoryName={category.name}
+            categoryIcon={category.icon}
+          />
         </div>
       </section>
 
       {/* CTA */}
-      <section className="py-12 px-6 bg-gray-50">
+      <section className="py-14 px-6 bg-gray-50 border-t border-gray-100">
         <div className="max-w-2xl mx-auto text-center space-y-4">
-          <h2 className="text-xl font-bold text-gray-800">
-            สนใจสั่งงานประเภทนี้?
+          <h2 className="text-2xl font-bold text-gray-800">
+            ต้องการสั่งทำงาน {category.name}?
           </h2>
-          <p className="text-gray-500 text-sm">
-            ติดต่อเราผ่าน LINE เพื่อสอบถามรายละเอียดและราคา
+          <p className="text-gray-500 text-sm leading-relaxed">
+            ติดต่อสอบถาม ประเมินราคาฟรี ไม่มีข้อผูกมัด คุยง่าย เป็นกันเอง พร้อมรับประกันความพอใจ
           </p>
-          <Link
-            href="/contact"
-            className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3 rounded-full transition shadow-lg"
-          >
-            ติดต่อสั่งงาน
-          </Link>
+          <div className="pt-2">
+            <Link
+              href="/contact"
+              className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-8 py-3.5 rounded-full transition shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            >
+              ติดต่อสั่งงานผ่าน LINE OA
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -158,3 +142,4 @@ export default async function CategoryPortfolioPage({
     </div>
   );
 }
+
