@@ -4,6 +4,9 @@ import prisma from "@/lib/db";
 import type { Metadata } from "next";
 import PortfolioGallery from "@/components/PortfolioGallery";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Dynamic SEO Metadata
 export async function generateMetadata({
   params,

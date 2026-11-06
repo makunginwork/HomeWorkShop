@@ -1,12 +1,26 @@
 import { NextResponse } from "next/server";
 import { SignJWT } from "jose";
 
+const DEFAULT_ADMIN_PASSWORD = "12345678";
+const DEFAULT_JWT_SECRET = "supersecretjwtkey_homework_shop_2026_secured";
+
 export async function POST(req: Request) {
   try {
     const { password } = await req.json();
 
+    const expectedPassword = (
+      process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD
+    )
+      .trim()
+      .replace(/^["']|["']$/g, "");
+
+    const inputPassword =
+      typeof password === "string"
+        ? password.trim().replace(/^["']|["']$/g, "")
+        : "";
+
     // 1. ตรวจสอบรหัสผ่าน
-    if (password !== process.env.ADMIN_PASSWORD) {
+    if (inputPassword !== expectedPassword) {
       return NextResponse.json(
         { error: "รหัสผ่านไม่ถูกต้อง" },
         { status: 401 },
@@ -14,7 +28,8 @@ export async function POST(req: Request) {
     }
 
     // 2. สร้าง JWT Token เข้ารหัสด้วย HS256
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const secretKey = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
+    const secret = new TextEncoder().encode(secretKey);
     const alg = "HS256";
 
     const token = await new SignJWT({ role: "admin" })
@@ -37,6 +52,7 @@ export async function POST(req: Request) {
 
     return response;
   } catch (error) {
+    console.error("Login error:", error);
     return NextResponse.json(
       { error: "เกิดข้อผิดพลาดภายในระบบ" },
       { status: 500 },

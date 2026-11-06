@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { verifyAdminToken } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/admin/reviews — ดึงรีวิวทั้งหมด (ทั้งที่เปิดและปิด) สำหรับ Admin
 export async function GET(req: NextRequest) {
   const authError = await verifyAdminToken(req);

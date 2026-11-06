@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // GET /api/reviews — ดึงรีวิวที่เปิดให้แสดงผล (visible: true)
 export async function GET() {
   try {

@@ -2,6 +2,9 @@ import Link from "next/link";
 import prisma from "@/lib/db";
 import CustomerReviews from "@/components/CustomerReviews";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // หมวดหมู่บริการทั้งหมดที่รับทำ
 const services = [
   { icon: "📊", name: "บัญชี & การเงิน", slug: "accounting" },

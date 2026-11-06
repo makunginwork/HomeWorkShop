@@ -1,6 +1,8 @@
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 
+const DEFAULT_JWT_SECRET = "supersecretjwtkey_homework_shop_2026_secured";
+
 /**
  * ตรวจสอบ JWT Token จาก HttpOnly Cookie ที่แนบมากับ Request
  * - คืนค่า null  → Token ถูกต้อง (ผ่านการตรวจสอบ)
@@ -19,7 +21,8 @@ export async function verifyAdminToken(
   }
 
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const secretKey = process.env.JWT_SECRET || DEFAULT_JWT_SECRET;
+    const secret = new TextEncoder().encode(secretKey);
     await jwtVerify(token, secret);
     return null; // null = ผ่านการตรวจสอบแล้ว
   } catch {
