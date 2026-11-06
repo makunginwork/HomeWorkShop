@@ -17,14 +17,15 @@ async function main() {
   console.log('--- Starting Authentic Document Portfolio Seeding (Zero Names) ---');
 
   const categoriesData = [
-    { name: 'การบัญชีและการเงิน', slug: 'accounting', icon: '📊', sortOrder: 1 },
-    { name: 'แผนธุรกิจและการตลาด', slug: 'business-plan', icon: '📑', sortOrder: 2 },
-    { name: 'สถิติและการวิจัย SPSS', slug: 'spss-research', icon: '📈', sortOrder: 3 },
-    { name: 'รายงานและสารสนเทศ', slug: 'reports', icon: '📄', sortOrder: 4 },
-    { name: 'งานนำเสนอ & Canva', slug: 'presentation', icon: '🎨', sortOrder: 5 },
-    { name: 'วิศวกรรมและวิชาคำนวณ', slug: 'engineering', icon: '⚙️', sortOrder: 6 },
-    { name: 'กฎหมายธุรกิจและการบัญชี', slug: 'law', icon: '⚖️', sortOrder: 7 },
-    { name: 'แบบฝึกหัดและใบงาน', slug: 'assignments', icon: '✏️', sortOrder: 8 },
+    { name: 'งานคำนวณและแบบจำลอง Excel', slug: 'excel-models', icon: '📗', sortOrder: 1 },
+    { name: 'การบัญชีและการเงิน', slug: 'accounting', icon: '📊', sortOrder: 2 },
+    { name: 'แผนธุรกิจและการตลาด', slug: 'business-plan', icon: '📑', sortOrder: 3 },
+    { name: 'สถิติและการวิจัย SPSS', slug: 'spss-research', icon: '📈', sortOrder: 4 },
+    { name: 'รายงานและสารสนเทศ', slug: 'reports', icon: '📄', sortOrder: 5 },
+    { name: 'งานนำเสนอ & Canva', slug: 'presentation', icon: '🎨', sortOrder: 6 },
+    { name: 'วิศวกรรมและวิชาคำนวณ', slug: 'engineering', icon: '⚙️', sortOrder: 7 },
+    { name: 'กฎหมายธุรกิจและการบัญชี', slug: 'law', icon: '⚖️', sortOrder: 8 },
+    { name: 'แบบฝึกหัดและใบงาน', slug: 'assignments', icon: '✏️', sortOrder: 9 },
   ];
 
   const catMap = {};
@@ -41,6 +42,64 @@ async function main() {
   await prisma.portfolio.deleteMany({});
 
   const portfolios = [
+  {
+    "categorySlug": "excel-models",
+    "title": "แบบจำลองต้นทุน-ปริมาณ-กำไร (CVP Analysis) และการวิเคราะห์ความอ่อนไหวบน Excel",
+    "slug": "excel-cvp-sensitivity",
+    "description": "แบบจำลองทางการเงินบน Microsoft Excel (.xlsx) ผูกสูตรไดนามิกครบวงจร:\n• ขั้นตอนที่ 1 (หน้าแรก): หัวข้อโครงการและสมมติฐานหลัก (Project Header & Key Assumptions)\n• ขั้นตอนที่ 2 (ชีทจำแนกต้นทุน): ตารางแยกประเภทต้นทุนผันแปรและต้นทุนคงที่ (Cost Classification Sheet)\n• ขั้นตอนที่ 3 (ชีทแบบจำลอง): สูตรคำนวณ CVP, Contribution Margin และจุดคุ้มทุน (BEP Formulas)\n• ขั้นตอนที่ 4 (ชีทวิเคราะห์ความอ่อนไหว): Sensitivity Analysis Table จำลองผลกระทบต่อกำไร\n• ขั้นตอนที่ 5 (เอกสารสรุป): บันทึกข้อเสนอแนะเชิงกลยุทธ์สำหรับผู้บริหาร (Executive Decision Memo)\nจัดทำด้วยสูตรไดนามิก SUM, IF, VLOOKUP, INDEX-MATCH ตรวจสอบความถูกต้องของตารางทุกจุด",
+    "tags": "Excel, CVP Analysis, แบบจำลองการเงิน, สูตรคำนวณ, Sensitivity Analysis, จุดคุ้มทุน, Spreadsheet",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_excel_cvp_01.png",
+      "/uploads/portfolio/cap_excel_cvp_02.png",
+      "/uploads/portfolio/cap_excel_cvp_03.png",
+      "/uploads/portfolio/cap_excel_cvp_04.png",
+      "/uploads/portfolio/cap_excel_cvp_05.png"
+    ]
+  },
+  {
+    "categorySlug": "excel-models",
+    "title": "ระบบบัญชีธุรกิจครบวงจรบน Excel (สมุดรายวัน, แยกประเภท, งบทดลอง, งบกำไรขาดทุน, BEP & ARR)",
+    "slug": "excel-full-accounting",
+    "description": "สมุดงาน Excel (.xlsx) สำหรับการจัดทำบัญชีธุรกิจเต็มรูปแบบ ผูกโยงยอดอัตโนมัติ:\n• ขั้นตอนที่ 1 (หน้าแรก): ภาพรวมระบบบัญชีและผังบัญชี (Chart of Accounts)\n• ขั้นตอนที่ 2 (สมุดรายวันทั่วไป): บันทึกรายการค้าเดบิต-เครดิต (General Journal Sheet)\n• ขั้นตอนที่ 3 (บัญชีแยกประเภท): ผ่านรายการไปยังบัญชีแยกประเภททั่วไป (General Ledger)\n• ขั้นตอนที่ 4 (งบทดลอง): ตรวจสอบความสมดุลเดบิต-เครดิต (Trial Balance Sheet)\n• ขั้นตอนที่ 5 (งบกำไรขาดทุน & BEP): สรุปผลการดำเนินงาน คำนวณจุดคุ้มทุน และอัตราผลตอบแทน ARR",
+    "tags": "Excel, ระบบบัญชี, สมุดรายวัน, บัญชีแยกประเภท, งบทดลอง, งบกำไรขาดทุน, ARR, BEP, การเงิน",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_excel_accounting_01.png",
+      "/uploads/portfolio/cap_excel_accounting_02.png",
+      "/uploads/portfolio/cap_excel_accounting_03.png",
+      "/uploads/portfolio/cap_excel_accounting_04.png",
+      "/uploads/portfolio/cap_excel_accounting_05.png"
+    ]
+  },
+  {
+    "categorySlug": "excel-models",
+    "title": "แบบจำลองแผนการเงินและเงินทุนหมุนเวียนธุรกิจค้าปลีก Smart Store (Financial Planning)",
+    "slug": "excel-retail-model",
+    "description": "แบบจำลองการวางแผนการเงินและการลงทุนธุรกิจค้าปลีก Smart Store บน Excel:\n• ขั้นตอนที่ 1: กำหนดตัวแปรและสมมติฐานการดำเนินงาน (Input Variables & Operational Assumptions)\n• ขั้นตอนที่ 2: แบบจำลอง CVP, อัตรากำไรส่วนเกิน และ Margin of Safety รายกลุ่มสินค้า\n• ขั้นตอนที่ 3: ตารางวิเคราะห์และการวางแผนเงินทุนหมุนเวียน (Working Capital Schedule)\n• ขั้นตอนที่ 4: แหล่งที่มาและการใช้ไปของเงินทุน พร้อมตารางชำระคืนเงินกู้ (Source & Funding Schedule)\nผูกสูตรเชื่อมโยงข้ามชีท (Cross-Sheet Linkage) ปรับเปลี่ยนตัวเลขสมมติฐานแล้วคำนวณใหม่ทันที",
+    "tags": "Excel, แผนการเงิน, ค้าปลีก, Working Capital, Financial Modeling, Smart Store, โมเดลธุรกิจ",
+    "sortOrder": 3,
+    "images": [
+      "/uploads/portfolio/cap_excel_retail_01.png",
+      "/uploads/portfolio/cap_excel_retail_02.png",
+      "/uploads/portfolio/cap_excel_retail_03.png",
+      "/uploads/portfolio/cap_excel_retail_04.png"
+    ]
+  },
+  {
+    "categorySlug": "excel-models",
+    "title": "แบบจำลองวิเคราะห์งบการเงินและกระแสเงินสด 4 มิติ (Financial Statement & Cash Flow Model)",
+    "slug": "excel-finratio-cashflow",
+    "description": "แบบจำลอง Excel วิเคราะห์โครงสร้างงบการเงินเปรียบเทียบเชิงลึก:\n• ขั้นตอนที่ 1: งบแสดงฐานะการเงิน (Statement of Financial Position) แนวราบและแนวดิ่ง (Common-Size)\n• ขั้นตอนที่ 2: งบกำไรขาดทุนเบ็ดเสร็จ (Income Statement) วิเคราะห์โครงสร้างต้นทุนและกำไร\n• ขั้นตอนที่ 3: งบแสดงการเปลี่ยนแปลงส่วนของผู้ถือหุ้น (Statement of Changes in Equity)\n• ขั้นตอนที่ 4: งบกระแสเงินสดวิธีทางอ้อม (Statement of Cash Flows) แยก 3 กิจกรรม ดำเนินงาน-ลงทุน-จัดหาเงิน\nพร้อมสูตรคำนวณอัตราส่วนทางการเงิน (Financial Ratios) ครบทุกมิติ",
+    "tags": "Excel, งบการเงิน, งบกระแสเงินสด, Statement of Cash Flows, อัตราส่วนทางการเงิน, การวิเคราะห์งบ",
+    "sortOrder": 4,
+    "images": [
+      "/uploads/portfolio/cap_excel_finratio_01.png",
+      "/uploads/portfolio/cap_excel_finratio_02.png",
+      "/uploads/portfolio/cap_excel_finratio_03.png",
+      "/uploads/portfolio/cap_excel_finratio_04.png"
+    ]
+  },
   {
     "categorySlug": "accounting",
     "title": "การจัดทำงบประมาณการดำเนินงานและงบการเงิน ประจำปี 2569 (Master Budget)",
@@ -64,7 +123,11 @@ async function main() {
     "tags": "CVP Analysis, จุดคุ้มทุน, Margin of Safety, Decision Memo, บัญชีบริหาร, ค้าปลีก",
     "sortOrder": 2,
     "images": [
-      "/uploads/portfolio/cap_acct_cvp_01.png"
+      "/uploads/portfolio/cap_acct_cvp_01.png",
+      "/uploads/portfolio/cap_excel_cvp_01.png",
+      "/uploads/portfolio/cap_excel_cvp_02.png",
+      "/uploads/portfolio/cap_excel_cvp_03.png",
+      "/uploads/portfolio/cap_excel_cvp_04.png"
     ]
   },
   {
