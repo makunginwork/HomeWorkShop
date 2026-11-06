@@ -12,37 +12,10 @@ if (!process.env.DATABASE_URL) {
 const prisma = new PrismaClient({
   datasourceUrl: process.env.DATABASE_URL || fallbackDbUrl,
 });
-const srcBase = 'C:\\แฟนฉัน\\งานรับจ้าง';
-const destBase = path.join(process.cwd(), 'public', 'uploads', 'portfolio');
-
-if (!fs.existsSync(destBase)) {
-  fs.mkdirSync(destBase, { recursive: true });
-}
-
-function copySafe(srcRelPath, destFileName) {
-  const fullDest = path.join(destBase, destFileName);
-  try {
-    // If already in public/uploads/portfolio, use it directly (works on Vercel!)
-    if (fs.existsSync(fullDest)) {
-      return `/uploads/portfolio/${destFileName}`;
-    }
-    const fullSrc = path.join(srcBase, srcRelPath);
-    if (fs.existsSync(fullSrc)) {
-      fs.copyFileSync(fullSrc, fullDest);
-      return `/uploads/portfolio/${destFileName}`;
-    } else {
-      console.warn('File not found:', fullSrc);
-    }
-  } catch (err) {
-    console.error('Copy error:', err.message);
-  }
-  return null;
-}
 
 async function main() {
-  console.log('--- Starting Comprehensive Clean Portfolio Seeding (Zero Names) ---');
+  console.log('--- Starting Authentic Document Portfolio Seeding (Zero Names) ---');
 
-  // Categories
   const categoriesData = [
     { name: 'การบัญชีและการเงิน', slug: 'accounting', icon: '📊', sortOrder: 1 },
     { name: 'แผนธุรกิจและการตลาด', slug: 'business-plan', icon: '📑', sortOrder: 2 },
@@ -64,395 +37,442 @@ async function main() {
     catMap[c.slug] = upserted.id;
   }
 
-  // Clear existing portfolios to rebuild completely
   await prisma.portfolioImage.deleteMany({});
   await prisma.portfolio.deleteMany({});
 
-  const portfolioDefinitions = [
-    // ============================================================
-    // 1. Accounting & Finance (การบัญชีและการเงิน)
-    // ============================================================
-    {
-      catSlug: 'accounting',
-      title: 'การจัดทำงบประมาณการดำเนินงานและงบการเงิน ประจำปี 2569 (Excel & รายงานวิเคราะห์)',
-      description: 'งานวิเคราะห์และจัดทำประมาณการงบประมาณรายรับ-รายจ่าย งบต้นทุนการผลิต งบกำไรขาดทุน และงบดุลล่วงหน้า พร้อมทั้งผูกสูตรคำนวณอัตโนมัติใน Excel เชื่อมโยงทุกชีทอย่างถูกต้องตามหลักการบัญชีบริหาร และจัดรูปเล่มรายงานมาตรฐานพร้อมส่งตรวจ',
-      files: [
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่1\\รุป\\22373_0.jpg', name: 'acc-budget-01.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่1\\รุป\\22374_0.jpg', name: 'acc-budget-02.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่1\\รุป\\22375_0.jpg', name: 'acc-budget-03.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่1\\รุป\\22376_0.jpg', name: 'acc-budget-04.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่1\\รุป\\22377_0.jpg', name: 'acc-budget-05.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่1\\รุป\\22378_0.jpg', name: 'acc-budget-06.jpg' },
-      ],
-      sortOrder: 1,
-    },
-    {
-      catSlug: 'accounting',
-      title: 'การวิเคราะห์จุดคุ้มทุน (CVP Analysis) และการบริหารเงินทุนหมุนเวียน ธุรกิจค้าปลีก Smart Store',
-      description: 'คำนวณจุดคุ้มทุน (Break-Even Point), ส่วนเกินความปลอดภัย (Margin of Safety), Operating Leverage และจัดทำกราฟแสดงความสัมพันธ์ต้นทุน-ปริมาณ-กำไร เพื่อประกอบการตัดสินใจเชิงกลยุทธ์ทางธุรกิจ พร้อมบทวิเคราะห์ Decision Memo',
-      files: [
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\chart_2_cvp_verified.png', name: 'acc-cvp-01.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\chart_3_wc_verified.png', name: 'acc-wc-02.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\bg_cover.png', name: 'acc-cover-03.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_01.png', name: 'acc-slide-04.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_02.png', name: 'acc-slide-05.png' },
-      ],
-      sortOrder: 2,
-    },
-    {
-      catSlug: 'accounting',
-      title: 'การวิเคราะห์งบการเงินเปรียบเทียบและอัตราส่วนทางการเงิน 5 ด้าน บริษัทจดทะเบียน',
-      description: 'วิเคราะห์แนวนอน (Horizontal Analysis), แนวดิ่ง (Common-Size Analysis) และคำนวณอัตราส่วนทางการเงินครบวงจร: สภาพคล่อง, ความสามารถในการทำกำไร, ประสิทธิภาพในการดำเนินงาน, โครงสร้างหนี้สิน และความสามารถในการจ่ายดอกเบี้ย สรุปเป็นรายงานฉบับสมบูรณ์',
-      files: [
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่2\\S__5087243_0.jpg', name: 'acc-finratio-01.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่2\\S__5087244_0.jpg', name: 'acc-finratio-02.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่2\\S__5087245_0.jpg', name: 'acc-finratio-03.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่2\\S__5087246_0.jpg', name: 'acc-finratio-04.jpg' },
-        { src: '[10203215] การบัญชีเพื่อการจัดการ\\งานงบประมาณ2569\\น้องคนที่2\\S__5087247_0.jpg', name: 'acc-finratio-05.jpg' },
-      ],
-      sortOrder: 3,
-    },
-    {
-      catSlug: 'accounting',
-      title: 'รายงานการวิเคราะห์ตราสารทุน ข้อมูลบริษัทจดทะเบียน และกลยุทธ์การลงทุน',
-      description: 'วิเคราะห์โครงสร้างรายได้ ต้นทุน งบแสดงฐานะการเงิน และประเมินมูลค่าหุ้นของบริษัทในตลาดหลักทรัพย์แห่งประเทศไทย (SET) พร้อมสร้างกราฟเปรียบเทียบผลตอบแทนและปัจจัยเสี่ยง',
-      files: [
-        { src: '[วิชาการเงิน] การวิเคราะห์ตราสารทุนและการลงทุน\\งานวิเคราะห์หุ้นและข้อมูลบริษัท\\extracted_images_tantikorn\\img_0.png', name: 'acc-stock-01.png' },
-        { src: '[วิชาการเงิน] การวิเคราะห์ตราสารทุนและการลงทุน\\งานวิเคราะห์หุ้นและข้อมูลบริษัท\\extracted_images_tantikorn\\img_1.png', name: 'acc-stock-02.png' },
-        { src: '[วิชาการเงิน] การวิเคราะห์ตราสารทุนและการลงทุน\\งานวิเคราะห์หุ้นและข้อมูลบริษัท\\extracted_images_tantikorn\\img_2.png', name: 'acc-stock-03.png' },
-        { src: '[วิชาการเงิน] การวิเคราะห์ตราสารทุนและการลงทุน\\งานวิเคราะห์หุ้นและข้อมูลบริษัท\\extracted_images_tantikorn\\img_3.png', name: 'acc-stock-04.png' },
-        { src: '[วิชาการเงิน] การวิเคราะห์ตราสารทุนและการลงทุน\\งานวิเคราะห์หุ้นและข้อมูลบริษัท\\extracted_images_tantikorn\\img_5.png', name: 'acc-stock-05.png' },
-      ],
-      sortOrder: 4,
-    },
+  const portfolios = [
+  {
+    "categorySlug": "accounting",
+    "title": "การจัดทำงบประมาณการดำเนินงานและงบการเงิน ประจำปี 2569 (Master Budget)",
+    "slug": "acct-budget-2569",
+    "description": "เอกสารการวางแผนงบประมาณองค์กรฉบับสมบูรณ์ ประกอบด้วย งบประมาณการขาย (Sales Budget), งบประมาณการผลิต (Production Budget), งบประมาณวัตถุดิบทางตรง (Direct Materials Budget), งบประมาณค่าแรงงานทางตรง (Direct Labor Budget), งบประมาณค่าใช้จ่ายการผลิต และงบกำไรขาดทุนโดยประมาณ (Pro Forma Income Statement) จัดทำตามมาตรฐานการบัญชีเพื่อการจัดการเพื่อใช้ในการวางแผนและควบคุมการดำเนินงาน",
+    "tags": "งบประมาณ, การบัญชีเพื่อการจัดการ, Master Budget, Excel, Pro Forma, การวางแผนการเงิน",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_acct_budget_01.png",
+      "/uploads/portfolio/cap_acct_budget_02.png",
+      "/uploads/portfolio/cap_acct_budget_03.png",
+      "/uploads/portfolio/cap_acct_budget_04.png",
+      "/uploads/portfolio/cap_acct_budget_05.png"
+    ]
+  },
+  {
+    "categorySlug": "accounting",
+    "title": "การวิเคราะห์จุดคุ้มทุน (CVP Analysis) และข้อเสนอเชิงธุรกิจ (Decision Memo)",
+    "slug": "acct-cvp-retail",
+    "description": "แบบจำลองและเอกสารการวิเคราะห์ต้นทุน-ปริมาณ-กำไร (Cost-Volume-Profit Analysis) สำหรับธุรกิจค้าปลีก Smart Store คำนวณจุดคุ้มทุนทั้งในรูปหน่วยและจำนวนเงิน, ส่วนเกินเพื่อความปลอดภัย (Margin of Safety), Operating Leverage และข้อเสนอแนะเชิงกลยุทธ์ (Decision Memo) สำหรับผู้บริหารในการกำหนดราคาขายและโครงสร้างต้นทุน",
+    "tags": "CVP Analysis, จุดคุ้มทุน, Margin of Safety, Decision Memo, บัญชีบริหาร, ค้าปลีก",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_acct_cvp_01.png"
+    ]
+  },
+  {
+    "categorySlug": "accounting",
+    "title": "การวิเคราะห์งบการเงินเปรียบเทียบและอัตราส่วนทางการเงิน 5 ด้าน บมจ.อลูคอน (ALUCON)",
+    "slug": "acct-alucon-amc",
+    "description": "รายงานการวิเคราะห์งบการเงินฉบับเจาะลึกของบริษัทจดทะเบียนในตลาดหลักทรัพย์ฯ วิเคราะห์งบแสดงฐานะการเงินและงบกำไรขาดทุนเบ็ดเสร็จเปรียบเทียบทั้งแนวราบ (Horizontal Analysis) และแนวดิ่ง (Vertical / Common-Size Analysis) พร้อมคำนวณอัตราส่วนสภาพคล่อง, ความสามารถในการทำกำไร, ประสิทธิภาพการใช้สินทรัพย์, โครงสร้างหนี้สิน และอัตราผลตอบแทนต่อผู้ถือหุ้น (DuPont Analysis)",
+    "tags": "วิเคราะห์งบการเงิน, อัตราส่วนทางการเงิน, Financial Ratios, Common-Size, DuPont, ตลาดหลักทรัพย์",
+    "sortOrder": 3,
+    "images": [
+      "/uploads/portfolio/cap_acct_alucon_01.png",
+      "/uploads/portfolio/cap_acct_alucon_02.png",
+      "/uploads/portfolio/cap_acct_alucon_03.png",
+      "/uploads/portfolio/cap_acct_alucon_04.png",
+      "/uploads/portfolio/cap_acct_alucon_05.png"
+    ]
+  },
+  {
+    "categorySlug": "accounting",
+    "title": "การวิเคราะห์แนวโน้มโครงสร้างทางการเงินและผลการดำเนินงาน 5 ปีย้อนหลัง (2563-2567)",
+    "slug": "acct-ratio-5years",
+    "description": "รายงานการประเมินสถานะทางการเงินระยะยาว 5 ปีต่อเนื่อง วิเคราะห์การเปลี่ยนแปลงของโครงสร้างเงินทุน (Capital Structure), อัตราส่วนหนี้สินต่อทุน (D/E Ratio), ความสามารถในการชำระดอกเบี้ย (Interest Coverage Ratio) และแนวโน้มกระแสเงินสดจากการดำเนินงาน เพื่อประเมินความมั่นคงและเสถียรภาพทางการเงินของกิจการ",
+    "tags": "Trend Analysis, โครงสร้างทางการเงิน, กระแสเงินสด, สภาพคล่อง, การประเมินสถานะทางการเงิน",
+    "sortOrder": 4,
+    "images": [
+      "/uploads/portfolio/cap_acct_5years_01.png",
+      "/uploads/portfolio/cap_acct_5years_02.png",
+      "/uploads/portfolio/cap_acct_5years_03.png"
+    ]
+  },
+  {
+    "categorySlug": "business-plan",
+    "title": "แผนกลยุทธ์ธุรกิจและการตลาดเชิงรุก ร้าน Cafe Amazon (Strategic Business Plan)",
+    "slug": "biz-amazon-strategy",
+    "description": "การจัดทำแผนกลยุทธ์ธุรกิจและเอกสารนำเสนอระดับมืออาชีพ ประกอบด้วย Business Model Canvas (BMC), การวิเคราะห์สภาพแวดล้อม PESTEL และ Five Forces Model, SWOT Analysis, การกำหนดกลยุทธ์ STP (Segmentation, Targeting, Positioning), กลยุทธ์ส่วนประสมทางการตลาด 7Ps และแผนการขยายสาขารูปแบบ Drive-Thru และ Standalone",
+    "tags": "แผนธุรกิจ, แผนการตลาด, Cafe Amazon, Business Model Canvas, SWOT, STP, 7Ps",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_biz_amazon_01.png",
+      "/uploads/portfolio/cap_biz_amazon_02.png",
+      "/uploads/portfolio/cap_biz_amazon_03.png",
+      "/uploads/portfolio/cap_biz_amazon_04.png",
+      "/uploads/portfolio/cap_biz_amazon_05.png"
+    ]
+  },
+  {
+    "categorySlug": "business-plan",
+    "title": "แผนธุรกิจและโมเดลการเงินร้านเบอร์เกอร์พรีเมียม Holy Beef Burger",
+    "slug": "biz-beef-burger",
+    "description": "การศึกษาความเป็นไปได้และวางแผนธุรกิจร้านเบอร์เกอร์เนื้อพรีเมียม วิเคราะห์ตลาดอาหารบริการด่วนพิเศษ (QSR), แผนการจัดซื้อวัตถุดิบและระบบควบคุมต้นทุนอาหาร (Food Cost Control), การกำหนดราคาเชิงกลยุทธ์, การประมาณการงบกระแสเงินสด และการคำนวณจุดคุ้มทุนเพื่อขอรับสินเชื่อและการลงทุน",
+    "tags": "แผนธุรกิจร้านอาหาร, Food Cost, เบอร์เกอร์, ประมาณการทางการเงิน, จุดคุ้มทุน, QSR",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_biz_burger_01.png",
+      "/uploads/portfolio/cap_biz_burger_02.png"
+    ]
+  },
+  {
+    "categorySlug": "business-plan",
+    "title": "แผนธุรกิจและการตลาดผลิตภัณฑ์สมุนไพรเพื่อสุขภาพ Herb Care",
+    "slug": "biz-herb-care",
+    "description": "แผนการพัฒนาและจัดจำหน่ายผลิตภัณฑ์แปรรูปจากสมุนไพรธรรมชาติเจาะกลุ่มผู้บริโภคใส่ใจสุขภาพ วิเคราะห์แนวโน้มตลาดสินค้าออร์แกนิก, การสร้างอัตลักษณ์แบรนด์ (Brand Identity), การออกแบบบรรจุภัณฑ์ที่เป็นมิตรต่อสิ่งแวดล้อม, ช่องทางการจัดจำหน่ายแบบ Omni-channel (Online & Offline) และกลยุทธ์ Content Marketing",
+    "tags": "สมุนไพร, สุขภาพ, ออร์แกนิก, Omni-channel, Content Marketing, การสร้างแบรนด์",
+    "sortOrder": 3,
+    "images": [
+      "/uploads/portfolio/cap_biz_herb_01.png",
+      "/uploads/portfolio/cap_biz_herb_02.png",
+      "/uploads/portfolio/cap_biz_herb_03.png"
+    ]
+  },
+  {
+    "categorySlug": "business-plan",
+    "title": "แผนธุรกิจผลิตภัณฑ์แปรรูปข้าวโพดหวานเพื่อสุขภาพ (Sweet Corn Agro-Business)",
+    "slug": "biz-sweet-corn",
+    "description": "แผนธุรกิจการเพิ่มมูลค่าผลผลิตทางการเกษตรผ่านการแปรรูปเป็นผลิตภัณฑ์พร้อมบริโภค วิเคราะห์ห่วงโซ่อุปทานการเกษตร (Agri-Supply Chain), กระบวนการควบคุมคุณภาพมาตรฐานสากล, แผนการตลาดแบบ B2B และ B2C และการบริหารจัดการความเสี่ยงจากราคาผลผลิตผันผวน",
+    "tags": "ธุรกิจการเกษตร, ข้าวโพดหวาน, Supply Chain, แปรรูปอาหาร, แผนธุรกิจเกษตร",
+    "sortOrder": 4,
+    "images": [
+      "/uploads/portfolio/cap_biz_corn_01.png",
+      "/uploads/portfolio/cap_biz_corn_02.png",
+      "/uploads/portfolio/cap_biz_corn_03.png",
+      "/uploads/portfolio/cap_biz_corn_04.png"
+    ]
+  },
+  {
+    "categorySlug": "spss-research",
+    "title": "การวิจัยปัจจัยที่มีผลต่อการตัดสินใจซื้อสินค้าผ่าน TikTok Live (SPSS Full Research)",
+    "slug": "spss-tiktok-research",
+    "description": "งานวิจัยเชิงปริมาณฉบับสมบูรณ์ 50 หน้า ศึกษากลุ่มตัวอย่างนักศึกษาและผู้บริโภคยุคดิจิทัล รวบรวมข้อมูลด้วยแบบสอบถาม ดำเนินการวิเคราะห์ด้วยโปรแกรม SPSS ประกอบด้วย: การทดสอบความเชื่อมั่นแบบสอบถาม (Cronbach's Alpha), สถิติพรรณนา (Mean, S.D., Frequency), การทดสอบสหสัมพันธ์เพียร์สัน (Pearson's Correlation) และการวิเคราะห์การถดถอยพหุคูณ (Multiple Linear Regression) เพื่อหาตัวแปรพยากรณ์ความตั้งใจซื้อ",
+    "tags": "SPSS, งานวิจัย, TikTok Live, Multiple Regression, Cronbach Alpha, Pearson Correlation",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_spss_tiktok_01.png",
+      "/uploads/portfolio/cap_spss_tiktok_02.png",
+      "/uploads/portfolio/cap_spss_tiktok_03.png",
+      "/uploads/portfolio/cap_spss_tiktok_04.png",
+      "/uploads/portfolio/cap_spss_tiktok_05.png"
+    ]
+  },
+  {
+    "categorySlug": "spss-research",
+    "title": "การวิเคราะห์ความแปรปรวนทางเดียว (One-Way ANOVA) และการทดสอบสมมติฐานด้วย SPSS",
+    "slug": "spss-anova-testing",
+    "description": "รายงานผลการทดสอบความแตกต่างของค่าเฉลี่ยประชากรมากกว่า 2 กลุ่ม ด้วยสถิติ One-Way ANOVA ตรวจสอบข้อตกลงเบื้องต้นเรื่องความแปรปรวนเท่ากัน (Test of Homogeneity of Variances - Levene's Test), การอ่านค่า F-test และ Sig. พร้อมการเปรียบเทียบพหุคูณรายคู่ (Post-Hoc Comparisons ด้วยวิธี Scheffe และ LSD) พร้อมการเขียนอภิปรายผลทางสถิติที่ถูกต้อง",
+    "tags": "One-Way ANOVA, สมมติฐานวิจัย, Post-Hoc Test, Scheffe, Levene Test, SPSS สถิติ",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_spss_anova_01.png",
+      "/uploads/portfolio/cap_spss_anova_02.png",
+      "/uploads/portfolio/cap_spss_anova_03.png",
+      "/uploads/portfolio/cap_spss_anova_04.png"
+    ]
+  },
+  {
+    "categorySlug": "spss-research",
+    "title": "การทดสอบความสัมพันธ์ไคสแควร์ (Chi-Square Test of Independence)",
+    "slug": "spss-chisquare-test",
+    "description": "รายงานการวิเคราะห์ความสัมพันธ์ระหว่างตัวแปรเชิงกลุ่ม (Categorical Data) ด้วยการทดสอบ Chi-Square ตารางไขว้จำแนกสองทาง (Crosstabulation), การคำนวณค่าความถี่ที่สังเกตได้ (Observed Frequencies) และความถี่ที่คาดหวัง (Expected Frequencies), ค่า Pearson Chi-Square และการทดสอบนัยสำคัญทางสถิติ",
+    "tags": "Chi-Square, Crosstab, ไคสแควร์, ความสัมพันธ์ตัวแปรกลุ่ม, สถิติทดสอบ, SPSS",
+    "sortOrder": 3,
+    "images": [
+      "/uploads/portfolio/cap_spss_chisquare_01.png",
+      "/uploads/portfolio/cap_spss_chisquare_02.png",
+      "/uploads/portfolio/cap_spss_chisquare_03.png"
+    ]
+  },
+  {
+    "categorySlug": "reports",
+    "title": "รายงานภาคนิพนธ์วิชาการ: การจัดการก๊าซเรือนกระจกและการเปลี่ยนแปลงสภาพภูมิอากาศ",
+    "slug": "rep-greenhouse-gas",
+    "description": "รายงานทางวิชาการฉบับสมบูรณ์ตามหลักเกณฑ์การรู้สารสนเทศ ครอบคลุมนิยามและกลไกการเกิดภาวะเรือนกระจก, พันธกรณีระหว่างประเทศ (ความตกลงปารีส), แผนแม่บทรองรับการเปลี่ยนแปลงสภาพภูมิอากาศของไทย, นโยบาย Net Zero Carbon Emission, การประเมินคาร์บอนฟุตพริ้นท์ และการจัดการสิ่งแวดล้อมที่ยั่งยืน พร้อมการเขียนอ้างอิงและบรรณานุกรมตามระบบ APA ฉบับที่ 7",
+    "tags": "รายงานวิชาการ, ก๊าซเรือนกระจก, Net Zero, คาร์บอนฟุตพริ้นท์, สิ่งแวดล้อม, บรรณานุกรม APA",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_rep_ghg_01.png",
+      "/uploads/portfolio/cap_rep_ghg_02.png",
+      "/uploads/portfolio/cap_rep_ghg_03.png",
+      "/uploads/portfolio/cap_rep_ghg_04.png",
+      "/uploads/portfolio/cap_rep_ghg_05.png"
+    ]
+  },
+  {
+    "categorySlug": "reports",
+    "title": "รายงานการศึกษา: ระบบการบริหารงานสาธารณสุขและผังเมือง จังหวัดเชียงใหม่",
+    "slug": "rep-chiangmai-admin",
+    "description": "รายงานการศึกษาระบบบริหารราชการไทยระดับภูมิภาคและท้องถิ่น วิเคราะห์บทบาทและโครงสร้างสำนักงานสาธารณสุขจังหวัด (สสจ.) ร่วมกับสำนักงานโยธาธิการและผังเมืองจังหวัด ในการจัดทำแผนผังเมืองรวมเชียงใหม่, การควบคุมการใช้ประโยชน์ที่ดิน, การรับมือปัญหาฝุ่นควันมลพิษ PM2.5 และการจัดสรรงบประมาณบริการสุขภาพประชาชน",
+    "tags": "ระบบบริหารราชการไทย, สาธารณสุข, ผังเมือง, เชียงใหม่, PM2.5, การปกครองส่วนภูมิภาค",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_rep_gov_01.png",
+      "/uploads/portfolio/cap_rep_gov_02.png",
+      "/uploads/portfolio/cap_rep_gov_03.png",
+      "/uploads/portfolio/cap_rep_gov_04.png",
+      "/uploads/portfolio/cap_rep_gov_05.png"
+    ]
+  },
+  {
+    "categorySlug": "reports",
+    "title": "รายงานการศึกษาโมเดลเศรษฐกิจหมุนเวียน (Circular Economy) กรณีศึกษา Moreloop",
+    "slug": "rep-moreloop-circular",
+    "description": "รายงานวิจัยกรณีศึกษาธุรกิจนวัตกรรมเพื่อสังคม ศึกษารูปแบบการนำเศษผ้าเหลือใช้จากโรงงานอุตสาหกรรมฟอกย้อมและตัดเย็บกลับเข้าสู่กระบวนการผลิต (Upcycling Platform), การคำนวณการลดปริมาณการปล่อยก๊าซคาร์บอนไดออกไซด์จากการนำผ้ากลับมาใช้ใหม่ และการสร้างโมเดลธุรกิจที่ตอบโจทย์ ESG (Environmental, Social, and Governance)",
+    "tags": "Circular Economy, Moreloop, ESG, Upcycling, เศรษฐกิจหมุนเวียน, นวัตกรรมสังคม",
+    "sortOrder": 3,
+    "images": [
+      "/uploads/portfolio/cap_rep_moreloop_01.png",
+      "/uploads/portfolio/cap_rep_moreloop_02.png",
+      "/uploads/portfolio/cap_rep_moreloop_03.png",
+      "/uploads/portfolio/cap_rep_moreloop_04.png"
+    ]
+  },
+  {
+    "categorySlug": "presentation",
+    "title": "สไลด์พรีเซนเทชันโครงงานธุรกิจค้าปลีกอัจฉริยะ Smart Store (Retail Innovation Deck)",
+    "slug": "pres-smart-store",
+    "description": "ชุดสไลด์นำเสนอผลงานระดับพรีเมียม 15 หน้า ออกแบบด้วยโปรแกรม Canva และ PowerPoint ดีไซน์ทันสมัย นำเสนอแนวคิดร้านสะดวกซื้อยุคใหม่: ระบบชำระเงินอัตโนมัติ (Self-Checkout & Cashless Payment), เทคโนโลยีเซนเซอร์ตรวจจับสินค้า, การบริหารจัดการสินค้าคงคลังแบบ Real-time, แผนผังการจัดวางหน้าร้าน (Store Layout) และการวิเคราะห์ผลตอบแทนการลงทุน",
+    "tags": "สไลด์นำเสนอ, PowerPoint, Canva, Smart Store, ค้าปลีกอัจฉริยะ, Store Layout, Pitch Deck",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_pres_smartstore_01.png",
+      "/uploads/portfolio/cap_pres_smartstore_02.png",
+      "/uploads/portfolio/cap_pres_smartstore_03.png",
+      "/uploads/portfolio/cap_pres_smartstore_04.png",
+      "/uploads/portfolio/cap_pres_smartstore_05.png"
+    ]
+  },
+  {
+    "categorySlug": "presentation",
+    "title": "สไลด์นำเสนอแผนกลยุทธ์ธุรกิจและขยายสาขา Cafe Amazon (Canva & PPTX)",
+    "slug": "pres-amazon-pitch",
+    "description": "สไลด์พรีเซนต์เพื่อการสื่อสารระดับผู้บริหาร จัดวางเลย์เอาต์กราฟิกสวยงาม ชูจุดเด่นห่วงโซ่คุณค่ากาแฟไทย, โมเดลแฟรนไชส์, การบริหารความสัมพันธ์ลูกค้า (CRM), โปรแกรมสมาชิก Blue Card และกลยุทธ์การขยายสู่ตลาดภูมิภาคอาเซียน",
+    "tags": "นำเสนอแผนธุรกิจ, Cafe Amazon, กลยุทธ์แบรนด์, แฟรนไชส์, พรีเซนเทชัน, Pitching",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_pres_amazon_deck_01.png",
+      "/uploads/portfolio/cap_pres_amazon_deck_02.png",
+      "/uploads/portfolio/cap_pres_amazon_deck_03.png",
+      "/uploads/portfolio/cap_pres_amazon_deck_04.png"
+    ]
+  },
+  {
+    "categorySlug": "presentation",
+    "title": "สไลด์นำเสนอความเป็นผู้ประกอบการและเศรษฐกิจสีเขียว (Green Entrepreneurship)",
+    "slug": "pres-green-entrepreneur",
+    "description": "ชุดสไลด์บรรยายการพัฒนาภาวะผู้นำและกรอบความคิดแบบผู้ประกอบการที่ยั่งยืน (Sustainable Entrepreneurial Mindset) อธิบายความสัมพันธ์ระหว่างโมเดล BCG (Bio-Circular-Green), ความรับผิดชอบต่อชุมชน และการขับเคลื่อนธุรกิจที่คำนึงถึงสิ่งแวดล้อม",
+    "tags": "BCG Model, เศรษฐกิจสีเขียว, ผู้นำที่ยั่งยืน, สไลด์บรรยาย, Green Business",
+    "sortOrder": 3,
+    "images": [
+      "/uploads/portfolio/cap_pres_green_biz_01.png",
+      "/uploads/portfolio/cap_pres_green_biz_02.png",
+      "/uploads/portfolio/cap_pres_green_biz_03.png",
+      "/uploads/portfolio/cap_pres_green_biz_04.png"
+    ]
+  },
+  {
+    "categorySlug": "engineering",
+    "title": "รายงานผลการทดลองการทดสอบแรงดัดของวัสดุ (Flexural & 3-Point Bending Test)",
+    "slug": "eng-bending-flexural",
+    "description": "รายงานผลการทดสอบทางกลของวัสดุวิศวกรรมด้วยเครื่อง Universal Testing Machine (UTM) แบบ 3-Point Bending บันทึกข้อมูลแรงและระยะแอ่นตัว (Load-Deflection Data), การพลอตกราฟความเค้น-ความเครียด (Stress-Strain Curve), คำนวณค่าความต้านทานแรงดัดสูงสุด (Flexural Strength) และโมดูลัสของการแตกหัก (Modulus of Rupture - MOR)",
+    "tags": "วิศวกรรมวัสดุ, การทดสอบแรงดัด, 3-Point Bending, Stress-Strain, MOR, Mechanical Testing",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_eng_flexural_01.png",
+      "/uploads/portfolio/cap_eng_flexural_02.png",
+      "/uploads/portfolio/cap_eng_flexural_03.png",
+      "/uploads/portfolio/cap_eng_flexural_04.png"
+    ]
+  },
+  {
+    "categorySlug": "engineering",
+    "title": "การวิเคราะห์การกระจายตัวทางสถิติแบบไวบูลล์ (Weibull Distribution) ในงานทดสอบวัสดุ",
+    "slug": "eng-weibull-analysis",
+    "description": "การประยุกต์ใช้สถิติไวบูลล์ประเมินความเชื่อถือได้และความน่าจะเป็นของการแตกหักในวัสดุเปราะ (Brittle Materials) คำนวณค่า Weibull Modulus (m) ซึ่งบ่งบอกถึงความสม่ำเสมอของโครงสร้างวัสดุ และค่าสเกลพารามิเตอร์ (Characteristic Strength) พร้อมการพล็อตและปรับแก้สมการเชิงเส้น",
+    "tags": "Weibull Distribution, สถิติวิศวกรรม, ความน่าจะเป็นของการแตกหัก, Weibull Modulus, ความเชื่อถือได้",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_eng_weibull_01.png",
+      "/uploads/portfolio/cap_eng_weibull_02.png",
+      "/uploads/portfolio/cap_eng_weibull_03.png",
+      "/uploads/portfolio/cap_eng_weibull_04.png"
+    ]
+  },
+  {
+    "categorySlug": "law",
+    "title": "แผนผังความคิด (Mind Mapping) สรุปสาระสำคัญ พ.ร.บ. วิชาชีพบัญชี พ.ศ. 2547",
+    "slug": "law-accounting-act",
+    "description": "สรุปโครงสร้างสาระสำคัญของกฎหมายวิชาชีพบัญชีในรูปแบบ Mind Map จำแนกบทบัญญัติชัดเจน: โครงสร้างและอำนาจหน้าที่ของสภาวิชาชีพบัญชี, มาตรฐานการบัญชี, การกำกับดูแลผู้ทำบัญชีและผู้สอบบัญชีรับอนุญาต (CPA), ใบอนุญาตประกอบวิชาชีพ และบทกำหนดโทษ",
+    "tags": "กฎหมายการบัญชี, พรบวิชาชีพบัญชี 2547, Mind Map, ผู้สอบบัญชี, CPA, สภาวิชาชีพบัญชี",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_law_accounting_act_01.png",
+      "/uploads/portfolio/cap_law_accounting_act_02.png"
+    ]
+  },
+  {
+    "categorySlug": "law",
+    "title": "สรุปมาตรฐานและข้อกำหนดจรรยาบรรณวิชาชีพบัญชี (Code of Ethics)",
+    "slug": "law-auditing-ethics",
+    "description": "เอกสารสรุปหลักเกณฑ์จรรยาบรรณของผู้ประกอบวิชาชีพบัญชีตามมาตรฐานสากล (IFAC / สภาวิชาชีพบัญชี): ความซื่อสัตย์สุจริต (Integrity), ความเที่ยงธรรมและความเป็นอิสระ (Objectivity & Independence), ความรู้ความสามารถและความเอาใจใส่ทางวิชาชีพ, การรักษาความลับ (Confidentiality) และพฤติกรรมเยี่ยงผู้ประกอบวิชาชีพ",
+    "tags": "จรรยาบรรณวิชาชีพ, Code of Ethics, ความเป็นอิสระ, ผู้สอบบัญชี, มาตรฐานการสอบบัญชี",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_law_ethics_01.png",
+      "/uploads/portfolio/cap_law_ethics_02.png"
+    ]
+  },
+  {
+    "categorySlug": "assignments",
+    "title": "เฉลยและแสดงวิธีทำโจทย์คณิตศาสตร์ แคลคูลัส และสมการอนุพันธ์ (Step-by-Step)",
+    "slug": "ass-calculus-solutions",
+    "description": "การเฉลยโจทย์คณิตศาสตร์ระดับอุดมศึกษาอย่างละเอียดทุกขั้นตอน แสดงที่มาของสูตรและการแทนค่า: อนุพันธ์ย่อย (Partial Derivatives), ปริพันธ์จำกัดเขตและไม่จำกัดเขต (Definite & Indefinite Integrals), เทคนิคการแยกเศษส่วนย่อย (Partial Fractions) และการแก้สมการเชิงอนุพันธ์อันดับหนึ่งและอันดับสอง ลายมือและฟอนต์คณิตศาสตร์เรียบร้อย ชัดเจน อ่านเข้าใจง่าย",
+    "tags": "แคลคูลัส, อนุพันธ์, ปริพันธ์, อินทิเกรต, สมการเชิงอนุพันธ์, เฉลยโจทย์, วิธีทำละเอียด",
+    "sortOrder": 1,
+    "images": [
+      "/uploads/portfolio/cap_ass_calculus_01.png",
+      "/uploads/portfolio/cap_ass_calculus_02.png",
+      "/uploads/portfolio/cap_ass_calculus_03.png",
+      "/uploads/portfolio/cap_ass_calculus_04.png"
+    ]
+  },
+  {
+    "categorySlug": "assignments",
+    "title": "รายงานวิชาการ: เทคโนโลยีวัสดุรากฟันเทียมเซรามิก (Biomaterial Ceramic Implants)",
+    "slug": "ass-ceramic-implants",
+    "description": "รายงานวิชาการด้านชีววัสดุและการแพทย์ ศึกษาสมบัติของเซอร์โคเนียเซรามิก (Zirconia Ceramic) ในงานทันตกรรมรากเทียม: ความเข้ากันได้ทางชีวภาพ (Biocompatibility), ความทนทานต่อการสึกหรอและการกัดกร่อนในช่องปาก, กระบวนการสร้างพันธะกับกระดูก (Osseointegration) และข้อได้เปรียบด้านความสวยงามเปรียบเทียบกับรากฟันเทียมไทเทเนียม",
+    "tags": "รากฟันเทียม, เซอร์โคเนีย, ชีววัสดุ, ทันตกรรม, Osseointegration, Biomaterials",
+    "sortOrder": 2,
+    "images": [
+      "/uploads/portfolio/cap_ass_ceramic_dental_01.png",
+      "/uploads/portfolio/cap_ass_ceramic_dental_02.png",
+      "/uploads/portfolio/cap_ass_ceramic_dental_03.png",
+      "/uploads/portfolio/cap_ass_ceramic_dental_04.png"
+    ]
+  },
+  {
+    "categorySlug": "assignments",
+    "title": "รายงานสรุปหลักการทำงานและการประยุกต์ใช้กล้องจุลทรรศน์อิเล็กตรอนแบบส่องกราด (SEM)",
+    "slug": "ass-sem-microscope",
+    "description": "เอกสารสรุปทฤษฎีทางวิทยาศาสตร์และการวิเคราะห์โครงสร้างวัสดุ อธิบายหลักการของลำอิเล็กตรอน (Electron Gun), การเกิดสัญญาณทุติยภูมิ (Secondary Electrons - SE) เพื่อดูสัณฐานพื้นผิว, สัญญาณสะท้อนกลับ (Backscattered Electrons - BSE) เพื่อดูความต่างของเลขอะตอม และการวิเคราะห์ธาตุเชิงปริมาณด้วยเทคนิค EDS/EDX",
+    "tags": "กล้องจุลทรรศน์อิเล็กตรอน, SEM, โครงสร้างจุลภาค, ส่องกราด, EDS, การวิเคราะห์วัสดุ",
+    "sortOrder": 3,
+    "images": [
+      "/uploads/portfolio/cap_ass_sem_microscope_01.png",
+      "/uploads/portfolio/cap_ass_sem_microscope_02.png",
+      "/uploads/portfolio/cap_ass_sem_microscope_03.png"
+    ]
+  },
+  {
+    "categorySlug": "assignments",
+    "title": "ใบงาน Take-Home การคำนวณและวิเคราะห์โจทย์ประยุกต์เชิงวิชาการ",
+    "slug": "ass-takehome-worksheet",
+    "description": "ชุดใบงานและการบ้านรายวิชาคำนวณประยุกต์ แสดงขั้นตอนการวิเคราะห์โจทย์อย่างเป็นระบบ การแปลงหน่วย การแทนค่าในสูตร และการสรุปคำตอบพร้อมเหตุผลประกอบ จัดหน้าเอกสารสวยงามตามระเบียบแบบแผนการส่งงานระดับมหาวิทยาลัย",
+    "tags": "ใบงาน, Take-Home, แบบฝึกหัด, การคำนวณ, การบ้าน, แสดงวิธีทำ",
+    "sortOrder": 4,
+    "images": [
+      "/uploads/portfolio/cap_ass_takehome_01.png",
+      "/uploads/portfolio/cap_ass_takehome_02.png",
+      "/uploads/portfolio/cap_ass_takehome_03.png",
+      "/uploads/portfolio/cap_ass_takehome_04.png"
+    ]
+  }
+];
 
-    // ============================================================
-    // 2. Business Plan (แผนธุรกิจและการตลาด)
-    // ============================================================
-    {
-      catSlug: 'business-plan',
-      title: 'แผนกลยุทธ์ธุรกิจและการตลาด ร้าน Cafe Amazon (สไลด์นำเสนอ & รายงานวิเคราะห์)',
-      description: 'จัดทำแผนกลยุทธ์การขยายสาขา การวิเคราะห์สภาพแวดล้อมธุรกิจ PESTEL, Porter Five Forces, SWOT Analysis, ส่วนประสมทางการตลาด 7Ps และประมาณการทางการเงิน พร้อมออกแบบสไลด์นำเสนอระดับพรีเมียม',
-      files: [
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\preview\\slide_1.png', name: 'biz-amazon-slide-01.png' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\preview\\slide_2.png', name: 'biz-amazon-slide-02.png' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\preview\\slide_3.png', name: 'biz-amazon-slide-03.png' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\preview\\slide_4.png', name: 'biz-amazon-slide-04.png' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\preview\\slide_5.png', name: 'biz-amazon-slide-05.png' },
-      ],
-      sortOrder: 1,
-    },
-    {
-      catSlug: 'business-plan',
-      title: 'การสรุปและวิเคราะห์โมเดลธุรกิจ (Business Model Canvas) และแผนการตลาดเชิงรุก',
-      description: 'วิเคราะห์โครงสร้าง 9 ช่องของ Business Model Canvas (BMC), การวางตำแหน่งผลิตภัณฑ์ (Positioning), การกำหนดกลุ่มเป้าหมาย (Segmentation & Targeting) และกลยุทธ์สร้างความได้เปรียบทางการแข่งขันอย่างยั่งยืน',
-      files: [
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\สรุปโมเดลแผนธุรกิจ_บทที่2และ3\\รูป\\S__5783572.jpg', name: 'biz-model-01.jpg' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\สรุปโมเดลแผนธุรกิจ_บทที่2และ3\\รูป\\S__5783574_0.jpg', name: 'biz-model-02.jpg' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\สรุปโมเดลแผนธุรกิจ_บทที่2และ3\\รูป\\S__5783575_0.jpg', name: 'biz-model-03.jpg' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\สรุปโมเดลแผนธุรกิจ_บทที่2และ3\\รูป\\S__5783576_0.jpg', name: 'biz-model-04.jpg' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\สรุปโมเดลแผนธุรกิจ_บทที่2และ3\\รูป\\S__5783577_0.jpg', name: 'biz-model-05.jpg' },
-      ],
-      sortOrder: 2,
-    },
-    {
-      catSlug: 'business-plan',
-      title: 'แผนธุรกิจสินค้าเกษตรแปรรูปและผลิตภัณฑ์เพื่อสุขภาพ (Health & Organic Care)',
-      description: 'จัดทำแผนธุรกิจผลิตภัณฑ์แปรรูปจากวัตถุดิบธรรมชาติ การวิเคราะห์พฤติกรรมผู้บริโภคยุคใหม่ แผนการตลาดดิจิทัล และแผนบริหารความเสี่ยง พร้อมรูปเล่ม Word และ PDF จัดหน้าสวยงาม',
-      files: [
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\docx_extracted\\img_1.png', name: 'biz-organic-01.png' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\docx_extracted\\img_10.png', name: 'biz-organic-02.png' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\docx_extracted\\img_11.png', name: 'biz-organic-03.png' },
-        { src: '[วิชาแผนธุรกิจ] แผนธุรกิจและการตลาด\\นำเสนอ_สไลด์_Cafe_Amazon\\docx_extracted\\img_12.png', name: 'biz-organic-04.png' },
-      ],
-      sortOrder: 3,
-    },
+  let totalItems = 0;
+  let totalImages = 0;
 
-    // ============================================================
-    // 3. SPSS & Statistics (สถิติและการวิจัย SPSS)
-    // ============================================================
-    {
-      catSlug: 'spss-research',
-      title: 'การวิเคราะห์สถิติ One-Way ANOVA และการทดสอบสมมติฐานด้วยโปรแกรม SPSS',
-      description: 'ทำความสะอาดข้อมูล (Data Cleaning), ทดสอบการแจกแจงแบบปกติ (Normality Test), วิเคราะห์ความแปรปรวนทางเดียว (One-Way ANOVA) และการเปรียบเทียบรายคู่ (Post-Hoc Tests: Scheffé, Tukey, Bonferroni) พร้อมเขียนสรุปผลรายงานบทที่ 4',
-      files: [
-        { src: '[วิชาสถิติ] สถิติและการวิจัย_SPSS\\แบบฝึกปฏิบัติSPSS_ANOVAและChiSquare_บทที่6และ7\\3wggwzkRz9-ctPXnUoDHOof42I98MaE-Hv8nf4ZFwo1ilMCbUgrB7pKQc20OPAAHC2UT5seoZ5FkLNhQpboJIfS7H6EMxIn6pe-sSN2RmC1ioG7VmY4DmT0Ix6W3_2GwOObrIXWDvj3wvVZWXR7TOg==.jpg', name: 'spss-anova-01.jpg' },
-        { src: '[วิชาสถิติ] สถิติและการวิจัย_SPSS\\แบบฝึกปฏิบัติSPSS_ANOVAและChiSquare_บทที่6และ7\\5RvHypMlYaFqQA0Tgdq68-TMGuEzu4ucBXuGD1SFaY7GCMkvT2xQ9mIoi3W1ePrXRjc1pcaS-q2HYSP_DvhP4K4bbHzKVCrXwbh5Y8m2lWl3sNQC6dkOCzCrNvVj0mgIr6fRbKROf4YksHppMo5QDQ==.jpg', name: 'spss-anova-02.jpg' },
-        { src: '[วิชาสถิติ] สถิติและการวิจัย_SPSS\\แบบฝึกปฏิบัติSPSS_ANOVAและChiSquare_บทที่6และ7\\8bCJ78Mj_P73s20IR0D_VPTv0q6goCdq7Z3G-GLi_ckZNunKpxDyZG_54BOan3HaBmiItLUgV4PuY_KiG9NWVsGfaypTexjN3nH3ptoyroUnhscGJTcbPGQda1Tj6p11yoEYSNdl5TIBu65cFcBv0A==.jpg', name: 'spss-anova-03.jpg' },
-      ],
-      sortOrder: 1,
-    },
-    {
-      catSlug: 'spss-research',
-      title: 'การวิเคราะห์การทดสอบความเป็นอิสระ (Chi-Square Test) และสถิติพรรณนาแบบสอบถาม',
-      description: 'วิเคราะห์ความถี่ ร้อยละ ค่าเฉลี่ย ส่วนเบี่ยงเบนมาตรฐาน (SD) และทดสอบความสัมพันธ์ระหว่างตัวแปรเชิงกลุ่มด้วย Chi-Square Test of Independence พร้อมตาราง Cross-tabulation และคำแปลผลอย่างเป็นทางการ',
-      files: [
-        { src: '[วิชาสถิติ] สถิติและการวิจัย_SPSS\\แบบฝึกปฏิบัติSPSS_ANOVAและChiSquare_บทที่6และ7\\MbNeoO7jWTEuLt7BygXHnfbDb-Z44bb-ZB1v8X7t6miCKBmV7oj29X6wO01872e6K5ZNQ90h65PCVS5lovzQXk_LEmgXowkxe_xSgxc5cXkGESvgJu2VULyYDOlU7fM5jgTjgTGATm1_gXXKFHhmhg==.jpg', name: 'spss-chisq-01.jpg' },
-        { src: '[วิชาสถิติ] สถิติและการวิจัย_SPSS\\แบบฝึกปฏิบัติSPSS_ANOVAและChiSquare_บทที่6และ7\\NahkhWYLdNW3g9ViimfsDdyLj7fOVCsWlHxtHG9lAfARydi3ElyKGv2bxWAeCT7bJuKTqxHHupXRRzmiYz49ZOZJNE9hMLPq1MG1zmbzHqE-8xBz3wV_TVFeS7SCzs7SyoEYSNdl5TIBu65cFcBv0A==.jpg', name: 'spss-chisq-02.jpg' },
-      ],
-      sortOrder: 2,
-    },
-    {
-      catSlug: 'spss-research',
-      title: 'การวิเคราะห์ความเชื่อมั่น (Cronbach Alpha) และสหสัมพันธ์เพียร์สัน (Pearson Correlation)',
-      description: 'ตรวจสอบคุณภาพเครื่องมือวิจัยด้วยค่าความเชื่อมั่น Cronbach Alpha รายด้านและภาพรวม พร้อมทั้งวิเคราะห์สัมประสิทธิ์สหสัมพันธ์ Pearson r เพื่อตรวจสอบระดับความสัมพันธ์ระหว่างตัวแปรต้นและตัวแปรตาม',
-      files: [
-        { src: '[วิชาสถิติ] สถิติและการวิจัย_SPSS\\แบบฝึกปฏิบัติSPSS_ANOVAและChiSquare_บทที่6และ7\\3wggwzkRz9-ctPXnUoDHOof42I98MaE-Hv8nf4ZFwo1ilMCbUgrB7pKQc20OPAAHC2UT5seoZ5FkLNhQpboJIfS7H6EMxIn6pe-sSN2RmC1ioG7VmY4DmT0Ix6W3_2GwOObrIXWDvj3wvVZWXR7TOg==.jpg', name: 'spss-corr-01.jpg' },
-        { src: '[วิชาสถิติ] สถิติและการวิจัย_SPSS\\แบบฝึกปฏิบัติSPSS_ANOVAและChiSquare_บทที่6และ7\\MbNeoO7jWTEuLt7BygXHnfbDb-Z44bb-ZB1v8X7t6miCKBmV7oj29X6wO01872e6K5ZNQ90h65PCVS5lovzQXk_LEmgXowkxe_xSgxc5cXkGESvgJu2VULyYDOlU7fM5jgTjgTGATm1_gXXKFHhmhg==.jpg', name: 'spss-corr-02.jpg' },
-      ],
-      sortOrder: 3,
-    },
+  for (const item of portfolios) {
+    const catId = catMap[item.categorySlug];
+    if (!catId) continue;
 
-    // ============================================================
-    // 4. Reports & Academic Documents (รายงานและสารสนเทศ)
-    // ============================================================
-    {
-      catSlug: 'reports',
-      title: 'รายงานภาคนิพนธ์เรื่อง การจัดการก๊าซเรือนกระจกและการพัฒนาสิ่งแวดล้อมที่ยั่งยืน',
-      description: 'จัดทำรูปเล่มภาคนิพนธ์วิชาการครบวงจร จัดรูปแบบตามระเบียบมหาวิทยาลัย ฟอนต์ TH Sarabun PSK 16pt เว้นขอบหน้ากระดาษ ซ้าย 1.5 นิ้ว บน ขวา ล่าง 1 นิ้ว จัดทำสารบัญตาราง สารบัญภาพ และบรรณานุกรมมาตรฐาน APA 7th',
-      files: [
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_image3_note.png', name: 'rep-ghg-01.png' },
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_ref_1.png', name: 'rep-ghg-02.png' },
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_ref_2.png', name: 'rep-ghg-03.png' },
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_ref_3.png', name: 'rep-ghg-04.png' },
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_ref_4.png', name: 'rep-ghg-05.png' },
-      ],
-      sortOrder: 1,
-    },
-    {
-      catSlug: 'reports',
-      title: 'รายงานการศึกษาระบบบริหารราชการไทย การบริหารสาธารณสุขและผังเมืองส่วนภูมิภาค',
-      description: 'วิเคราะห์โครงสร้างอำนาจหน้าที่ การกระจายอำนาจสู่ท้องถิ่น การวางผังเมือง และนโยบายสาธารณสุขของรัฐบาล จัดพิมพ์เนื้อหาอย่างเป็นระบบ มีการอ้างอิงเชิงอรรถและเอกสารประกอบครบถ้วน',
-      files: [
-        { src: '[PA 1102-69] ระบบบริหารราชการไทย (มรภ.เชียงใหม่)\\รายงาน_สาธารณสุขและผังเมือง_เชียงใหม่\\preview_pages\\page_1.png', name: 'rep-gov-preview-01.png' },
-        { src: '[PA 1102-69] ระบบบริหารราชการไทย (มรภ.เชียงใหม่)\\รายงาน_สาธารณสุขและผังเมือง_เชียงใหม่\\preview_pages\\page_2.png', name: 'rep-gov-preview-02.png' },
-        { src: '[PA 1102-69] ระบบบริหารราชการไทย (มรภ.เชียงใหม่)\\รายงาน_สาธารณสุขและผังเมือง_เชียงใหม่\\preview_pages\\page_3.png', name: 'rep-gov-preview-03.png' },
-        { src: '[PA 1102-69] ระบบบริหารราชการไทย (มรภ.เชียงใหม่)\\รายงาน_สาธารณสุขและผังเมือง_เชียงใหม่\\preview_pages\\page_4.png', name: 'rep-gov-preview-04.png' },
-        { src: '[PA 1102-69] ระบบบริหารราชการไทย (มรภ.เชียงใหม่)\\รายงาน_สาธารณสุขและผังเมือง_เชียงใหม่\\preview_pages\\page_5.png', name: 'rep-gov-preview-05.png' },
-      ],
-      sortOrder: 2,
-    },
-    {
-      catSlug: 'reports',
-      title: 'รายงานเทคนิคการสืบค้นสารสนเทศดิจิทัล และการเขียนการอ้างอิงบรรณานุกรมวิชาการ',
-      description: 'รวบรวมเทคนิคการสืบค้นฐานข้อมูลงานวิจัยระดับชาติและนานาชาติ (Scopus, ScienceDirect, ThaiJO), วิธีการเขียนรายการอ้างอิงในเนื้อหา และการเรียบเรียงบรรณานุกรมท้ายเล่มอย่างถูกต้องแม่นยำ',
-      files: [
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_ref_5.png', name: 'rep-info-ref-01.png' },
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_ref_6.png', name: 'rep-info-ref-02.png' },
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_ref_7.png', name: 'rep-info-ref-03.png' },
-        { src: '[10700401] การรู้สารสนเทศ\\รายงานภาคนิพนธ์_ก๊าซเรือนกระจก\\เล่มรายงานและแบบอ้างอิง\\crop_ref_10.png', name: 'rep-info-ref-04.png' },
-      ],
-      sortOrder: 3,
-    },
+    const primaryImg = item.images.length > 0 ? item.images[0] : null;
 
-    // ============================================================
-    // 5. Presentation & Canva (งานนำเสนอ & Canva)
-    // ============================================================
-    {
-      catSlug: 'presentation',
-      title: 'ออกแบบสไลด์นำเสนอผลการปฏิบัติงานและโครงการสหกิจศึกษา (Canva & PowerPoint)',
-      description: 'ออกแบบสไลด์นำเสนอสรุปผลการฝึกงานและการปฏิบัติงานสหกิจศึกษา จัดวางองค์ประกอบอย่างมืออาชีพ โทนสีสุภาพชัดเจน สรุปขั้นตอนการทำงาน ผลสัมฤทธิ์ และสิ่งที่ได้เรียนรู้ พร้อมเทมเพลตที่แก้ไขได้',
-      files: [
-        { src: '[เอกสารและบริการทั่วไป]\\นำเสนอฝึกงาน_สิรภพ\\pdf_pages\\page_1.png', name: 'pres-coop-01.png' },
-        { src: '[เอกสารและบริการทั่วไป]\\นำเสนอฝึกงาน_สิรภพ\\pdf_pages\\page_2.png', name: 'pres-coop-02.png' },
-        { src: '[เอกสารและบริการทั่วไป]\\นำเสนอฝึกงาน_สิรภพ\\pdf_pages\\page_3.png', name: 'pres-coop-03.png' },
-        { src: '[เอกสารและบริการทั่วไป]\\นำเสนอฝึกงาน_สิรภพ\\pdf_pages\\page_4.png', name: 'pres-coop-04.png' },
-        { src: '[เอกสารและบริการทั่วไป]\\นำเสนอฝึกงาน_สิรภพ\\pdf_pages\\page_5.png', name: 'pres-coop-05.png' },
-        { src: '[เอกสารและบริการทั่วไป]\\นำเสนอฝึกงาน_สิรภพ\\pdf_pages\\page_6.png', name: 'pres-coop-06.png' },
-      ],
-      sortOrder: 1,
-    },
-    {
-      catSlug: 'presentation',
-      title: 'ออกแบบสไลด์พรีเซนต์โครงงานธุรกิจค้าปลีกและการตลาด (Retail Smart Store Deck)',
-      description: 'ดีไซน์ชุดสไลด์นำเสนอแผนธุรกิจร้านค้าปลีกสมัยใหม่ จัดทำ Infographic แผนผังร้าน แผนผังเส้นทางลูกค้า (Customer Journey) และกราฟผลการดำเนินงานสำหรับพรีเซนต์ในชั้นเรียน',
-      files: [
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_03.png', name: 'pres-retail-01.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_04.png', name: 'pres-retail-02.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_05.png', name: 'pres-retail-03.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_06.png', name: 'pres-retail-04.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_07.png', name: 'pres-retail-05.png' },
-      ],
-      sortOrder: 2,
-    },
-    {
-      catSlug: 'presentation',
-      title: 'สไลด์นำเสนอแผนการเงินและการลงทุนในธุรกิจเชิงพาณิชย์',
-      description: 'ออกแบบสไลด์นำเสนอเชิงวิเคราะห์ตัวเลขทางการเงิน แผนการระดมทุน สรุปงบประมาณการลงทุน และผลตอบแทนที่คาดว่าจะได้รับ เข้าใจง่าย ชัดเจน ตรงประเด็น',
-      files: [
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_08.png', name: 'pres-fin-01.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_09.png', name: 'pres-fin-02.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_10.png', name: 'pres-fin-03.png' },
-        { src: '[10207102] การบัญชีและการเงินสำหรับธุรกิจค้าปลีก\\กรณีศึกษา_Smart_Store_ฟ้าใสมาร์ท_กลุ่ม4\\slide_previews\\slide_11.png', name: 'pres-fin-04.png' },
-      ],
-      sortOrder: 3,
-    },
-
-    // ============================================================
-    // 6. Engineering & Calculations (วิศวกรรมและวิชาคำนวณ)
-    // ============================================================
-    {
-      catSlug: 'engineering',
-      title: 'รายงานการทดสอบคุณสมบัติทางกลของวัสดุ (ความทนแรงดึงและแรงดัด - Materials Science)',
-      description: 'แสดงผลการทดลองทางวิศวกรรมศาสตร์ การทดสอบความแข็งแรง ความเค้น-ความเครียด (Stress-Strain Analysis), ตารางบันทึกผลการทดสอบแรงดัด และการคำนวณค่ามอดุลัสความยืดหยุ่นอย่างละเอียดทุกขั้นตอน',
-      files: [
-        { src: '[วิชาวิศวกรรม] วิชาสมบัติ 1\\รายงานการทดสอบความทนแรงดัด_กลุ่มสีชมพู\\far_right_table.png', name: 'eng-mat-test-01.png' },
-        { src: '[วิชาวิศวกรรม] วิชาสมบัติ 1\\รายงานการทดสอบความทนแรงดัด_กลุ่มสีชมพู\\final_page_1.png', name: 'eng-mat-test-02.png' },
-        { src: '[วิชาวิศวกรรม] วิชาสมบัติ 1\\รายงานการทดสอบความทนแรงดัด_กลุ่มสีชมพู\\final_page_2.png', name: 'eng-mat-test-03.png' },
-        { src: '[วิชาวิศวกรรม] วิชาสมบัติ 1\\รายงานการทดสอบความทนแรงดัด_กลุ่มสีชมพู\\final_page_3.png', name: 'eng-mat-test-04.png' },
-      ],
-      sortOrder: 1,
-    },
-    {
-      catSlug: 'engineering',
-      title: 'การวิเคราะห์การกระจายตัวทางสถิติแบบไวบูลล์ (Weibull Distribution) ในงานวิศวกรรม',
-      description: 'สร้างกราฟการกระจายตัว Weibull Plot คำนวณพารามิเตอร์ความน่าเชื่อถือของวัสดุ (Weibull Modulus & Characteristic Strength) พร้อมสรุปและวิเคราะห์ผลเชิงวิศวกรรม',
-      files: [
-        { src: '[วิชาวิศวกรรม] วิชาสมบัติ 1\\รายงานการทดสอบความทนแรงดัด_กลุ่มสีชมพู\\weibull_chart.png', name: 'eng-weibull-01.png' },
-        { src: '[วิชาวิศวกรรม] วิชาสมบัติ 1\\รายงานการทดสอบความทนแรงดัด_กลุ่มสีชมพู\\final_page_4.png', name: 'eng-weibull-02.png' },
-        { src: '[วิชาวิศวกรรม] วิชาสมบัติ 1\\รายงานการทดสอบความทนแรงดัด_กลุ่มสีชมพู\\final_page_5.png', name: 'eng-weibull-03.png' },
-        { src: '[วิชาวิศวกรรม] วิชาสมบัติ 1\\รายงานการทดสอบความทนแรงดัด_กลุ่มสีชมพู\\final_page_6.png', name: 'eng-weibull-04.png' },
-      ],
-      sortOrder: 2,
-    },
-
-    // ============================================================
-    // 7. Business Law & Regulations (กฎหมายธุรกิจและการบัญชี)
-    // ============================================================
-    {
-      catSlug: 'law',
-      title: 'แผนผังความคิด (Mind Map) สรุปสาระสำคัญ พ.ร.บ. วิชาชีพบัญชี พ.ศ. 2547',
-      description: 'สรุปประเด็นข้อกฎหมายว่าด้วยการประกอบวิชาชีพบัญชี สิทธิ หน้าที่ และความรับผิดชอบของผู้ประกอบวิชาชีพบัญชี ในรูปแบบ Mind Map ภาพสีสวยงาม คมชัด เข้าใจง่าย เหมาะสำหรับการอ่านทบทวนและทำรายงานสรุป',
-      files: [
-        { src: '[วิชากฎหมาย] กฎหมายการบัญชี\\Mindmap_พรบวิชาชีพบัญชี_แม่โจ้\\buzan_mindmap_1.png', name: 'law-buzan-01.png' },
-        { src: '[วิชากฎหมาย] กฎหมายการบัญชี\\Mindmap_พรบวิชาชีพบัญชี_แม่โจ้\\buzan_mindmap_2.png', name: 'law-buzan-02.png' },
-      ],
-      sortOrder: 1,
-    },
-    {
-      catSlug: 'law',
-      title: 'แผนผังความคิดจรรยาบรรณวิชาชีพบัญชี และข้อกำหนดมาตรฐานการสอบบัญชี',
-      description: 'สรุปหลักจรรยาบรรณวิชาชีพ 5 ประการ (ความซื่อสัตย์สุจริต, ความเที่ยงธรรม, ความรู้ความสามารถ, การรักษาความลับ, และพฤติกรรมทางวิชาชีพ) สรุปเป็นแผนผังมโนทัศน์ที่ชัดเจน',
-      files: [
-        { src: '[วิชากฎหมาย] กฎหมายการบัญชี\\Mindmap_พรบวิชาชีพบัญชี_แม่โจ้\\mindmap_customer_1.png', name: 'law-ethics-01.png' },
-        { src: '[วิชากฎหมาย] กฎหมายการบัญชี\\Mindmap_พรบวิชาชีพบัญชี_แม่โจ้\\mindmap_customer_2.png', name: 'law-ethics-02.png' },
-      ],
-      sortOrder: 2,
-    },
-
-    // ============================================================
-    // 8. Assignments & Exercises (แบบฝึกหัดและใบงาน)
-    // ============================================================
-    {
-      catSlug: 'assignments',
-      title: 'เฉลยและแสดงวิธีทำโจทย์คณิตศาสตร์ แคลคูลัส และสมการอนุพันธ์ (Step-by-Step)',
-      description: 'แสดงวิธีทำโจทย์คณิตศาสตร์ขั้นสูงทีละขั้นตอน อธิบายที่มาของสูตร ทฤษฎีบท และการตรวจคำตอบอย่างละเอียด ลายมืออ่านง่าย เป็นระเบียบเรียบร้อย พร้อมคำตอบที่ถูกต้องแม่นยำ',
-      files: [
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971847_0.jpg', name: 'assign-math-step-01.jpg' },
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971849_0.jpg', name: 'assign-math-step-02.jpg' },
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971850_0.jpg', name: 'assign-math-step-03.jpg' },
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971851_0.jpg', name: 'assign-math-step-04.jpg' },
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971852_0.jpg', name: 'assign-math-step-05.jpg' },
-      ],
-      sortOrder: 1,
-    },
-    {
-      catSlug: 'assignments',
-      title: 'การจัดทำแบบฝึกหัดและใบงานคำนวณสถิติประยุกต์และเรขาคณิตวิเคราะห์',
-      description: 'แสดงวิธีทำโจทย์การคำนวณสถิติพรรณนา การหาค่าความน่าจะเป็น ฟังก์ชันตรีโกณมิติ และเรขาคณิตวิเคราะห์ พร้อมวาดรูปประกอบอย่างประณีตและชัดเจน',
-      files: [
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971853_0.jpg', name: 'assign-stat-step-01.jpg' },
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971854_0.jpg', name: 'assign-stat-step-02.jpg' },
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971855_0.jpg', name: 'assign-stat-step-03.jpg' },
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971856_0.jpg', name: 'assign-stat-step-04.jpg' },
-        { src: '[แบบฝึกหัด] Assignment_และใบงานรายวิชา\\งานโจทย์และเขียนคณิตศาสตร์\\รูปโจทย์คณิตศาสตร์\\S__119971857_0.jpg', name: 'assign-stat-step-05.jpg' },
-      ],
-      sortOrder: 2,
-    },
-  ];
-
-  let totalImagesCopied = 0;
-
-  for (const item of portfolioDefinitions) {
-    const categoryId = catMap[item.catSlug];
-    if (!categoryId) {
-      console.warn(`Category not found: ${item.catSlug}`);
-      continue;
-    }
-
-    const copiedUrls = [];
-    for (const f of item.files) {
-      const url = copySafe(f.src, f.name);
-      if (url) {
-        copiedUrls.push(url);
-        totalImagesCopied++;
-      }
-    }
-
-    const coverUrl = copiedUrls.length > 0 ? copiedUrls[0] : null;
-
-    const portfolio = await prisma.portfolio.create({
+    const created = await prisma.portfolio.create({
       data: {
-        categoryId,
         title: item.title,
         description: item.description,
-        imageUrl: coverUrl,
+        imageUrl: primaryImg,
+        categoryId: catId,
         published: true,
         sortOrder: item.sortOrder,
       },
     });
+    totalItems++;
 
-    for (let i = 0; i < copiedUrls.length; i++) {
+    for (let i = 0; i < item.images.length; i++) {
       await prisma.portfolioImage.create({
         data: {
-          portfolioId: portfolio.id,
-          imageUrl: copiedUrls[i],
+          portfolioId: created.id,
+          imageUrl: item.images[i],
           sortOrder: i,
         },
       });
+      totalImages++;
     }
 
-    console.log(`✓ [${item.catSlug}] ${item.title} (${copiedUrls.length} images)`);
+    console.log(`✓ [${item.categorySlug}] ${item.title.slice(0, 50)}... (${item.images.length} images)`);
   }
 
-  // Seed anonymous reviews (no personal names, only friendly customer feedback)
-  await prisma.review.deleteMany({});
-  const cleanReviews = [
-    {
-      authorName: 'ลูกค้า (สายบัญชี-บริหาร)',
-      rating: 5,
-      comment: 'สั่งทำงานงบประมาณ Excel กับรายงานการบัญชี งานเรียบร้อยมากครับ ผูกสูตรให้ครบทุกตาราง อาจารย์ชมว่าทำถูกหมดเลย ส่งงานตรงเวลามากครับ',
-    },
-    {
-      authorName: 'ลูกค้า (งานวิจัย ป.โท)',
-      rating: 5,
-      comment: 'ช่วยรัน SPSS บทที่ 4 ด่วนมาก สั่งตอนบ่ายได้ตอนค่ำ มีคำอธิบายตารางพร้อมวิธีแปลผล One-Way ANOVA ให้อ่านเข้าใจง่าย ส่งงานตรงเวลาสุดๆ ครับ',
-    },
-    {
-      authorName: 'ลูกค้า (สายการตลาด)',
-      rating: 5,
-      comment: 'ทำสไลด์ Canva นำเสนอแผนธุรกิจ คาเฟ่อเมซอน สวยถูกใจมากค่ะ จัดเลย์เอาต์สวย โทนสีเข้ากับแบรนด์ ไม่ต้องแก้งานเลย ประทับใจมากค่ะ',
-    },
-    {
-      authorName: 'ลูกค้า (งานเอกสารวิชาการ)',
-      rating: 5,
-      comment: 'จัดหน้าภาคนิพนธ์และจัดรูปแบบบรรณานุกรม APA 7th เนี๊ยบมากครับ ไม่มีหน้ากระโดด ส่งงานตรวจผ่านฉลุย แนะนำเพื่อนมาสั่งต่อแน่นอนครับ',
-    },
-    {
-      authorName: 'ลูกค้า (งานคำนวณ-วิศวะ)',
-      rating: 5,
-      comment: 'งานด่วนก่อนสอบ แอดมินตอบไวมาก คุยง่าย ช่วยเคลียร์โจทย์คำนวณพร้อมแสดงวิธีทำละเอียด เข้าใจจุดที่สงสัยทันทีเลย ให้ 5 ดาวเต็มเลยครับ',
-    },
-  ];
-
-  for (const r of cleanReviews) {
-    await prisma.review.create({ data: r });
+  // Seed Customer Reviews if none exist
+  const currentReviews = await prisma.review.count();
+  if (currentReviews === 0) {
+    const reviewsData = [
+      {
+        authorName: 'ลูกค้า (งานคำนวณ-วิศวะ)',
+        rating: 5,
+        comment: 'งานด่วนก่อนสอบ แอดมินตอบไวมาก คุยง่าย ช่วยเคลียร์โจทย์คำนวณพร้อมแสดงวิธีทำละเอียด เข้าใจจุดที่สงสัยทันทีเลย ให้ 5 ดาวเต็มเลยครับ',
+        visible: true,
+      },
+      {
+        authorName: 'ลูกค้า (สถิติวิจัย SPSS)',
+        rating: 5,
+        comment: 'ให้รันผลสถิติ SPSS และเขียนสรุปตาราง ANOVA ส่งงานตรงเวลา ข้อมูลถูกต้องตามหลักสถิติเป๊ะ แนะนำต่อเพื่อนๆ แน่นอนครับ',
+        visible: true,
+      },
+      {
+        authorName: 'ลูกค้า (บัญชี-งบประมาณ)',
+        rating: 5,
+        comment: 'จัดทำงบประมาณและวิเคราะห์งบการเงินละเอียดมาก มีกราฟิกสวยงามและสูตร Excel ชัดเจน ไม่ต้องแก้อะไรเลย ประทับใจมากค่ะ',
+        visible: true,
+      },
+      {
+        authorName: 'ลูกค้า (แผนธุรกิจและการตลาด)',
+        rating: 5,
+        comment: 'สไลด์นำเสนอ Cafe Amazon และแผนธุรกิจทำออกมาเป็นมืออาชีพมาก ทั้ง BMC และ 4Ps นำไปพรีเซนต์แล้วอาจารย์ชมเลย ขอบคุณมากครับ',
+        visible: true,
+      },
+      {
+        authorName: 'ลูกค้า (รายงานวิชาการ)',
+        rating: 5,
+        comment: 'รายงานก๊าซเรือนกระจกและผังเมืองจัดหน้าสวยมาก อ้างอิง APA ครบถ้วน ถูกต้องตามระเบียบมหาวิทยาลัย บริการดีเยี่ยมครับ',
+        visible: true,
+      },
+    ];
+    for (const r of reviewsData) {
+      await prisma.review.create({ data: r });
+    }
   }
 
-  console.log(`\n=== Seeding Finished Successfully ===`);
-  console.log(`Total Portfolio Items: ${portfolioDefinitions.length}`);
-  console.log(`Total Images Copied: ${totalImagesCopied}`);
-  console.log(`All personal names stripped and sanitized 100%!`);
+  console.log('\n=== Seeding Finished Successfully ===');
+  console.log(`Total Portfolio Items: ${totalItems}`);
+  console.log(`Total Real Document Images Linked: ${totalImages}`);
+  console.log('All personal names sanitized 100%!');
 }
 
-main().catch(console.error).finally(() => prisma.$disconnect());
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
