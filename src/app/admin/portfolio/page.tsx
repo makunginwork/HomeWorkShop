@@ -15,6 +15,10 @@ export default function AdminPortfolioPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Filter state
+  const [filterCategoryId, setFilterCategoryId] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   // Tabs: 'portfolios' | 'categories' | 'reviews'
   const [activeTab, setActiveTab] = useState<
     "portfolios" | "categories" | "reviews"
@@ -107,8 +111,54 @@ export default function AdminPortfolioPage() {
   };
 
   // ============================================================
-  // Image Handlers (Multiple Images)
+  // Client-Side Image Compression & Processing
   // ============================================================
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      if (file.type === "image/svg+xml") {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1600;
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.85));
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Image Upload Handlers
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -120,35 +170,22 @@ export default function AdminPortfolioPage() {
       const newUrls: string[] = [];
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (file.size > 5 * 1024 * 1024) {
-          setModalError(`ไฟล์ ${file.name} มีขนาดใหญ่เกิน 5MB`);
+        if (file.size > 15 * 1024 * 1024) {
+          setModalError(`ไฟล์ ${file.name} มีขนาดใหญ่เกิน 15MB`);
           continue;
         }
 
-        const fd = new FormData();
-        fd.append("file", file);
-        const res = await fetch("/api/admin/upload", {
-          method: "POST",
-          body: fd,
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data.url) newUrls.push(data.url);
-        } else {
-          const err = await res.json();
-          setModalError(err.error || `อัปโหลด ${file.name} ไม่สำเร็จ`);
-        }
+        const compressedDataUrl = await compressImage(file);
+        newUrls.push(compressedDataUrl);
       }
 
       if (newUrls.length > 0) {
         setPortfolioImages((prev) => [...prev, ...newUrls]);
       }
     } catch {
-      setModalError("เกิดข้อผิดพลาดในการอัปโหลดไฟล์");
+      setModalError("เกิดข้อผิดพลาดในการโหลดรูปภาพ");
     } finally {
       setIsUploading(false);
-      // Reset input value so same files can be re-selected if needed
       e.target.value = "";
     }
   };
@@ -374,6 +411,18 @@ export default function AdminPortfolioPage() {
     }
   };
 
+  // Filtered Portfolios
+  const filteredPortfolios = portfolios.filter((p) => {
+    const matchesCat =
+      filterCategoryId === "all" || p.categoryId === filterCategoryId;
+    const matchesSearch =
+      !searchQuery.trim() ||
+      p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (p.description &&
+        p.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCat && matchesSearch;
+  });
+
   // ============================================================
   // Render
   // ============================================================
@@ -381,22 +430,22 @@ export default function AdminPortfolioPage() {
     <div className="min-h-screen bg-gray-50/60 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl shadow-xs border border-gray-100">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl shadow-xs border border-gray-100">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <span>📸</span>
               <span>จัดการผลงานและรีวิวร้าน</span>
             </h1>
             <p className="text-sm text-gray-500 mt-1">
-              เพิ่ม/แก้ไขรูปภาพหลายรูป (แบบ IG), จัดการหมวดหมู่งาน, และตรวจสอบรีวิวลูกค้า
+              เพิ่ม/แก้ไขรูปภาพผลงาน ใส่รูปได้หลายรูป, จัดการหมวดหมู่, และตรวจสอบรีวิวลูกค้า
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <Link
               href="/admin/dashboard"
               className="text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl text-sm font-medium transition"
             >
-              ← จัดการออเดอร์
+              ← แดชบอร์ด
             </Link>
             <button
               onClick={
@@ -407,15 +456,16 @@ export default function AdminPortfolioPage() {
                     }
                   : openCreatePortfolio
               }
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl transition text-sm shadow-sm"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl transition text-sm shadow-sm flex items-center justify-center gap-1.5 flex-1 sm:flex-none"
             >
-              {activeTab === "categories" ? "+ ประเภทงานใหม่" : "+ เพิ่มผลงานใหม่"}
+              <span>+</span>
+              <span>{activeTab === "categories" ? "หมวดหมู่งานใหม่" : "เพิ่มผลงานใหม่"}</span>
             </button>
           </div>
         </header>
 
         {/* Tabs */}
-        <div className="flex gap-2 bg-gray-100 p-1.5 rounded-2xl w-fit border border-gray-200/50">
+        <div className="flex gap-2 bg-gray-200/60 p-1.5 rounded-2xl w-fit">
           <button
             onClick={() => setActiveTab("portfolios")}
             className={`px-5 py-2.5 rounded-xl text-sm font-medium transition flex items-center gap-2 ${
@@ -425,7 +475,7 @@ export default function AdminPortfolioPage() {
             }`}
           >
             <span>📸 ผลงาน</span>
-            <span className="bg-gray-200/80 text-gray-700 text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-mono">
               {portfolios.length}
             </span>
           </button>
@@ -437,8 +487,8 @@ export default function AdminPortfolioPage() {
                 : "text-gray-600 hover:text-gray-900"
             }`}
           >
-            <span>📁 ประเภทงาน</span>
-            <span className="bg-gray-200/80 text-gray-700 text-xs px-2 py-0.5 rounded-full">
+            <span>📁 หมวดหมู่งาน</span>
+            <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-mono">
               {categories.length}
             </span>
           </button>
@@ -451,14 +501,60 @@ export default function AdminPortfolioPage() {
             }`}
           >
             <span>💬 รีวิวลูกค้า</span>
-            <span className="bg-gray-200/80 text-gray-700 text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-mono">
               {reviews.length}
             </span>
           </button>
         </div>
 
+        {/* Filters for Portfolios */}
+        {activeTab === "portfolios" && (
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-gray-500 mr-1">หมวดหมู่:</span>
+              <button
+                onClick={() => setFilterCategoryId("all")}
+                className={`text-xs px-3 py-1.5 rounded-lg transition font-medium ${
+                  filterCategoryId === "all"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                ทั้งหมด ({portfolios.length})
+              </button>
+              {categories.map((c) => {
+                const count = portfolios.filter((p) => p.categoryId === c.id).length;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setFilterCategoryId(c.id)}
+                    className={`text-xs px-3 py-1.5 rounded-lg transition font-medium flex items-center gap-1 ${
+                      filterCategoryId === c.id
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    <span>{c.icon}</span>
+                    <span>{c.name}</span>
+                    <span className="opacity-75 font-mono text-[10px]">({count})</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="w-full sm:w-64">
+              <input
+                type="text"
+                placeholder="ค้นหาชื่อผลงาน..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-3.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-400 outline-none"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Content Box */}
-        <div className="bg-white rounded-2xl shadow-xs border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-xs border border-gray-100 overflow-hidden">
           {isLoading ? (
             <div className="p-16 text-center text-gray-400">
               <p className="text-4xl animate-bounce mb-3">⏳</p>
@@ -466,29 +562,43 @@ export default function AdminPortfolioPage() {
             </div>
           ) : activeTab === "portfolios" ? (
             /* ===== Portfolio List ===== */
-            portfolios.length === 0 ? (
+            filteredPortfolios.length === 0 ? (
               <div className="p-16 text-center">
                 <p className="text-5xl mb-3">📂</p>
-                <p className="text-gray-600 font-medium text-base">ยังไม่มีผลงานในระบบ</p>
-                <p className="text-gray-400 text-xs mt-1">
-                  กดปุ่ม &ldquo;+ เพิ่มผลงานใหม่&rdquo; ด้านบนเพื่อเริ่มลงผลงาน
+                <p className="text-gray-700 font-bold text-base">
+                  {portfolios.length === 0
+                    ? "ยังไม่มีผลงานในระบบ"
+                    : "ไม่พบผลงานที่ตรงกับการค้นหา"}
                 </p>
+                <p className="text-gray-400 text-xs mt-1 max-w-sm mx-auto">
+                  {portfolios.length === 0
+                    ? "คลิกที่ปุ่ม \"+ เพิ่มผลงานใหม่\" ด้านบนเพื่อเริ่มลงผลงานของคุณได้ทันที"
+                    : "ลองเปลี่ยนคำค้นหา หรือเลือกดูหมวดหมู่อื่น"}
+                </p>
+                {portfolios.length === 0 && (
+                  <button
+                    onClick={openCreatePortfolio}
+                    className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-xl text-xs transition"
+                  >
+                    + เพิ่มผลงานชิ้นแรก
+                  </button>
+                )}
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase">
                     <tr>
-                      <th className="px-5 py-3.5">รูปตัวอย่าง</th>
+                      <th className="px-5 py-3.5">รูปหน้าปก</th>
                       <th className="px-5 py-3.5">ชื่อผลงาน</th>
-                      <th className="px-5 py-3.5">ประเภทงาน</th>
+                      <th className="px-5 py-3.5">หมวดหมู่</th>
                       <th className="px-5 py-3.5 text-center">จำนวนรูป</th>
                       <th className="px-5 py-3.5">สถานะ</th>
                       <th className="px-5 py-3.5 text-center">จัดการ</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                    {portfolios.map((p) => {
+                    {filteredPortfolios.map((p) => {
                       const imgCount =
                         p.images && p.images.length > 0
                           ? p.images.length
@@ -573,7 +683,7 @@ export default function AdminPortfolioPage() {
               <div className="p-16 text-center">
                 <p className="text-4xl mb-3">📁</p>
                 <p className="text-gray-500">
-                  ยังไม่มีประเภทงาน กด &ldquo;+ ประเภทงานใหม่&rdquo; เพื่อสร้าง
+                  ยังไม่มีหมวดหมู่งาน กด &ldquo;+ หมวดหมู่งานใหม่&rdquo; เพื่อสร้าง
                 </p>
               </div>
             ) : (
@@ -731,7 +841,7 @@ export default function AdminPortfolioPage() {
                 {/* หมวดหมู่งาน */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                    ประเภทงาน *
+                    หมวดหมู่งาน *
                   </label>
                   <select
                     name="categoryId"
@@ -740,7 +850,7 @@ export default function AdminPortfolioPage() {
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                   >
                     <option value="" disabled>
-                      -- เลือกประเภทงาน --
+                      -- เลือกหมวดหมู่งาน --
                     </option>
                     {categories.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -760,7 +870,7 @@ export default function AdminPortfolioPage() {
                     type="text"
                     required
                     defaultValue={editingPortfolio?.title ?? ""}
-                    placeholder="เช่น: รายงานการวิเคราะห์งบการเงิน ประจำปี 2569"
+                    placeholder="เช่น: รายงานการวิเคราะห์งบการเงิน หรือ แบบจำลอง CVP บน Excel"
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                   />
                 </div>
@@ -772,14 +882,14 @@ export default function AdminPortfolioPage() {
                   </label>
                   <textarea
                     name="description"
-                    rows={3}
+                    rows={4}
                     defaultValue={editingPortfolio?.description ?? ""}
-                    placeholder="อธิบายเครื่องมือที่ใช้ ขอบเขตงาน หรือผลลัพธ์..."
+                    placeholder="พิมพ์รายละเอียดงาน โปรแกรมที่ใช้ สูตร หรือสาระสำคัญของงาน..."
                     className="w-full border border-gray-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-400 outline-none leading-relaxed"
                   />
                 </div>
 
-                {/* รูปภาพผลงาน (รองรับหลายรูปภาพ) */}
+                {/* รูปภาพผลงาน (เลือกจากเครื่อง หรือ วาง URL) */}
                 <div className="bg-gray-50/80 p-4 rounded-2xl border border-gray-200/80 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
@@ -787,18 +897,18 @@ export default function AdminPortfolioPage() {
                         รูปภาพผลงาน ({portfolioImages.length} รูป)
                       </label>
                       <p className="text-[11px] text-gray-500">
-                        อัปโหลดได้หลายรูปสำหรับสไลด์ดูรูปซ้าย-ขวาแบบ IG (รูปแรกคือรูปหน้าปก)
+                        เลือกได้หลายรูปพร้อมกัน (รูปแรกจะเป็นรูปหน้าปก)
                       </p>
                     </div>
                   </div>
 
-                  {/* ปุ่มเลือกไฟล์จากเครื่อง (รองรับเลือกทีละหลายไฟล์) */}
-                  <label className="flex items-center justify-center gap-2 cursor-pointer bg-white hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-xl px-4 py-3 transition text-center">
+                  {/* ปุ่มเลือกไฟล์จากเครื่อง (ประมวลผลทันที) */}
+                  <label className="flex items-center justify-center gap-2 cursor-pointer bg-white hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-xl px-4 py-3.5 transition text-center">
                     <span className="text-xl">📁</span>
                     <span className="text-sm font-medium text-gray-700">
                       {isUploading
-                        ? "⏳ กำลังอัปโหลดรูปภาพ..."
-                        : "เลือกรูปจากเครื่อง (เลือกได้หลายไฟล์)..."}
+                        ? "⏳ กำลังโหลดรูปภาพ..."
+                        : "เลือกรูปจากเครื่อง (เลือกได้หลายไฟล์พร้อมกัน)"}
                     </span>
                     <input
                       type="file"
@@ -810,7 +920,7 @@ export default function AdminPortfolioPage() {
                     />
                   </label>
 
-                  {/* หรือเพิ่ม URL รูปภาพโดยตรง */}
+                  {/* หรือเพิ่ม URL รูปภาพ */}
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -828,11 +938,11 @@ export default function AdminPortfolioPage() {
                     </button>
                   </div>
 
-                  {/* Thumbnail Previews with Cover Badge and Remove Button */}
+                  {/* Visual Thumbnails */}
                   {portfolioImages.length > 0 && (
                     <div className="pt-2">
                       <p className="text-[11px] font-semibold text-gray-500 mb-2">
-                        รูปภาพที่จะบันทึก (คลิก &ldquo;ตั้งเป็นหน้าปก&rdquo; เพื่อสลับลำดับ):
+                        รูปภาพที่เลือก ({portfolioImages.length} รูป):
                       </p>
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 max-h-48 overflow-y-auto p-1">
                         {portfolioImages.map((url, idx) => (
@@ -855,12 +965,12 @@ export default function AdminPortfolioPage() {
                                 หน้าปก
                               </span>
                             )}
-                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-1 p-1">
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center gap-1 p-1">
                               {idx !== 0 && (
                                 <button
                                   type="button"
                                   onClick={() => moveImageToCover(idx)}
-                                  className="text-[10px] bg-white text-gray-800 px-1.5 py-0.5 rounded font-medium shadow"
+                                  className="text-[10px] bg-white text-gray-800 px-2 py-0.5 rounded font-medium shadow"
                                 >
                                   ตั้งเป็นปก
                                 </button>
@@ -868,7 +978,7 @@ export default function AdminPortfolioPage() {
                               <button
                                 type="button"
                                 onClick={() => removeImage(idx)}
-                                className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded font-medium shadow"
+                                className="text-[10px] bg-red-600 text-white px-2.5 py-0.5 rounded font-medium shadow"
                               >
                                 ลบ ✕
                               </button>
@@ -880,14 +990,14 @@ export default function AdminPortfolioPage() {
                   )}
 
                   <p className="text-[11px] text-gray-400">
-                    💡 หากไม่ใส่รูปภาพ ระบบจะใช้ icon ของประเภทงานแสดงเป็นภาพแทนโดยอัตโนมัติ
+                    💡 หากไม่ได้ใส่รูป ระบบจะแสดงไอคอนของหมวดหมู่นั้นแทนโดยอัตโนมัติ
                   </p>
                 </div>
 
                 {/* สถานะเผยแพร่ */}
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                    สถานะการเผยแพร่
+                    สถานะการแสดงผล
                   </label>
                   <select
                     name="published"
@@ -938,184 +1048,170 @@ export default function AdminPortfolioPage() {
         </div>
       )}
 
-      {/* ============================================================
-          Modal: สร้าง/แก้ไข ประเภทงาน
-          ============================================================ */}
+      {/* Modal: Category */}
       {(isCreatingCategory || editingCategory) && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-scale-up">
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
               <h2 className="text-base font-bold text-gray-800">
                 {editingCategory
-                  ? `✏️ แก้ไข: ${editingCategory.name}`
-                  : "📁 เพิ่มประเภทงานใหม่"}
+                  ? `✏️ แก้ไขหมวดหมู่: ${editingCategory.name}`
+                  : "📁 หมวดหมู่งานใหม่"}
               </h2>
               <button
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 text-xl"
+                className="text-gray-400 hover:text-gray-600 text-xl w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center"
               >
                 ✕
               </button>
             </div>
+
             <form
-              id="category-form"
               onSubmit={
                 editingCategory ? handleUpdateCategory : handleCreateCategory
               }
               className="p-6 space-y-4"
             >
               <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                  ชื่อประเภทงาน *
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  ชื่อหมวดหมู่ *
                 </label>
                 <input
                   name="name"
                   type="text"
                   required
-                  placeholder="เช่น: การบัญชีและการเงิน"
                   defaultValue={editingCategory?.name ?? ""}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                  placeholder="เช่น: งานคำนวณและแบบจำลอง Excel"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
+
               <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                  Slug (URL) *
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Slug (URL ภาษาอังกฤษ) *
                 </label>
                 <input
                   name="slug"
                   type="text"
                   required
-                  placeholder="เช่น: accounting"
                   defaultValue={editingCategory?.slug ?? ""}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono focus:ring-2 focus:ring-blue-400 outline-none"
+                  placeholder="เช่น: excel-models"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
+
               <div>
-                <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-                  Icon (Emoji)
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Icon (Emoji หรือข้อความ)
                 </label>
                 <input
                   name="icon"
                   type="text"
-                  placeholder="เช่น: 📊"
                   defaultValue={editingCategory?.icon ?? ""}
-                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                  placeholder="เช่น: 📗 หรือ 📊"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
+
               {modalError && (
                 <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl p-3">
                   ⚠️ {modalError}
                 </div>
               )}
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-xs font-medium hover:bg-gray-200 transition"
+                >
+                  ยกเลิก
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="px-5 py-2 bg-blue-600 text-white rounded-xl text-xs font-medium hover:bg-blue-700 disabled:opacity-60 transition"
+                >
+                  {isSaving ? "กำลังบันทึก..." : "บันทึก"}
+                </button>
+              </div>
             </form>
-            <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50">
-              <button
-                type="button"
-                onClick={closeModal}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-sm transition"
-              >
-                ยกเลิก
-              </button>
-              <button
-                type="submit"
-                form="category-form"
-                disabled={isSaving}
-                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white rounded-xl text-sm font-medium transition shadow-sm"
-              >
-                {isSaving
-                  ? "กำลังบันทึก..."
-                  : editingCategory
-                  ? "บันทึกการแก้ไข"
-                  : "สร้างประเภทงาน"}
-              </button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* ============================================================
-          Modal: ยืนยันลบผลงาน
-          ============================================================ */}
+      {/* Delete Confirmation: Portfolio */}
       {deletingPortfolioId && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center space-y-4">
-            <p className="text-4xl">🗑️</p>
-            <h3 className="text-lg font-bold text-gray-800">ยืนยันการลบผลงาน</h3>
-            <p className="text-xs text-gray-500">
-              ผลงานและรูปภาพทั้งหมดในรายการนี้จะถูกลบถาวร ไม่สามารถกู้คืนได้
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-xl">
+            <h3 className="font-bold text-gray-900 text-lg">ยืนยันการลบผลงาน?</h3>
+            <p className="text-sm text-gray-600">
+              เมื่อลบแล้วรูปภาพและข้อมูลของผลงานนี้จะไม่สามารถกู้คืนได้
             </p>
-            <div className="flex gap-3 justify-center pt-2">
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => setDeletingPortfolioId(null)}
-                className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm transition"
+                className="px-4 py-2 text-xs font-medium bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition"
               >
                 ยกเลิก
               </button>
               <button
                 onClick={() => handleDeletePortfolio(deletingPortfolioId)}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
+                className="px-4 py-2 text-xs font-medium bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
               >
-                ยืนยัน ลบเลย
+                ยืนยันการลบ
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ============================================================
-          Modal: ยืนยันลบประเภทงาน
-          ============================================================ */}
+      {/* Delete Confirmation: Category */}
       {deletingCategoryId && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center space-y-4">
-            <p className="text-4xl">📁</p>
-            <h3 className="text-lg font-bold text-gray-800">
-              ยืนยันการลบประเภทงาน
-            </h3>
-            <p className="text-xs text-gray-500">
-              หากยังมีผลงานอยู่ในประเภทนี้ ระบบจะป้องกันไม่ให้ลบเพื่อรักษาข้อมูล
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-xl">
+            <h3 className="font-bold text-gray-900 text-lg">ยืนยันการลบหมวดหมู่?</h3>
+            <p className="text-sm text-gray-600">
+              ผลงานทั้งหมดที่อยู่ในหมวดหมู่นี้จะถูกลบไปด้วย
             </p>
-            <div className="flex gap-3 justify-center pt-2">
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => setDeletingCategoryId(null)}
-                className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm transition"
+                className="px-4 py-2 text-xs font-medium bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition"
               >
                 ยกเลิก
               </button>
               <button
                 onClick={() => handleDeleteCategory(deletingCategoryId)}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
+                className="px-4 py-2 text-xs font-medium bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
               >
-                ยืนยัน ลบเลย
+                ยืนยันการลบ
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ============================================================
-          Modal: ยืนยันลบรีวิว
-          ============================================================ */}
+      {/* Delete Confirmation: Review */}
       {deletingReviewId && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center space-y-4">
-            <p className="text-4xl">💬</p>
-            <h3 className="text-lg font-bold text-gray-800">ยืนยันการลบรีวิว</h3>
-            <p className="text-xs text-gray-500">
-              รีวิวนี้จะถูกลบออกจากระบบอย่างถาวร (สำหรับจัดการสแปม/ปั่นรีวิว)
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-xl">
+            <h3 className="font-bold text-gray-900 text-lg">ยืนยันการลบรีวิว?</h3>
+            <p className="text-sm text-gray-600">
+              ต้องการลบรีวิวนี้ออกจากระบบใช่หรือไม่?
             </p>
-            <div className="flex gap-3 justify-center pt-2">
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => setDeletingReviewId(null)}
-                className="px-5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm transition"
+                className="px-4 py-2 text-xs font-medium bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition"
               >
                 ยกเลิก
               </button>
               <button
                 onClick={() => handleDeleteReview(deletingReviewId)}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-medium transition shadow-sm"
+                className="px-4 py-2 text-xs font-medium bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
               >
-                ยืนยัน ลบเลย
+                ยืนยันการลบ
               </button>
             </div>
           </div>

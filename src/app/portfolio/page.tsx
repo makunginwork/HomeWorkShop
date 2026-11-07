@@ -175,13 +175,10 @@ export default async function PortfolioPage() {
                         <span>{cat.name}</span>
                       </div>
 
-                      {/* Bottom Flow Hint */}
-                      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] text-white/90">
-                        <span className="bg-black/60 backdrop-blur-sm px-2 py-0.5 rounded font-mono">
-                          ปก · สารบัญ · เนื้อหา · ตาราง · สรุป
-                        </span>
-                        <span className="bg-blue-600 text-white px-2 py-0.5 rounded font-medium shadow-xs">
-                          {cat._count.portfolios} งาน →
+                      {/* Bottom Count Badge */}
+                      <div className="absolute bottom-3 right-3">
+                        <span className="bg-blue-600/90 backdrop-blur-xs text-white text-[11px] px-2.5 py-1 rounded-full font-medium shadow-xs">
+                          {cat._count.portfolios} ผลงาน →
                         </span>
                       </div>
                     </div>

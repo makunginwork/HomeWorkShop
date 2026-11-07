@@ -242,8 +242,20 @@ export default async function HomePage() {
           </div>
 
           {latestWorks.length === 0 ? (
-            <div className="text-center py-10">
-              <p className="text-gray-400 text-sm">ยังไม่มีผลงานในขณะนี้</p>
+            <div className="text-center py-12 bg-white rounded-3xl border border-gray-100 max-w-lg mx-auto p-8 shadow-xs space-y-3">
+              <span className="text-4xl block">✨</span>
+              <p className="text-gray-800 font-bold text-base">พร้อมรับงานทุกสาขาวิชา</p>
+              <p className="text-gray-500 text-xs leading-relaxed">
+                คลิกเลือกดูบริการที่รับทำด้านบน หรือทัก LINE เพื่อส่งโจทย์และประเมินราคาได้ทันที
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/contact"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-full text-xs transition shadow-sm"
+                >
+                  💬 สอบถามหรือสั่งงานผ่าน LINE
+                </Link>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -79,10 +79,12 @@ export default async function CategoryPortfolioPage({
         <div className="max-w-4xl mx-auto text-center space-y-4">
           {category.icon && <p className="text-5xl">{category.icon}</p>}
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            ผลงาน{category.name}
+            {category.name.startsWith("งาน") ? category.name : `งาน${category.name}`}
           </h1>
           <p className="text-gray-600">
-            {category.portfolios.length} ผลงานตัวอย่าง · คลิกที่การ์ดเพื่อดูรูปภาพสไลด์และรายละเอียด
+            {category.portfolios.length > 0
+              ? `${category.portfolios.length} ผลงานตัวอย่าง · คลิกที่การ์ดเพื่อดูรูปภาพและรายละเอียด`
+              : "ตัวอย่างผลงานที่ส่งมอบจริง ปลอดภัย ไร้ข้อมูลส่วนบุคคล"}
           </p>
           <Link
             href="/portfolio"

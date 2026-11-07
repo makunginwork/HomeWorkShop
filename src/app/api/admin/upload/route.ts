@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminToken } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 
-// POST /api/admin/upload — อัปโหลดรูปภาพ
+// POST /api/admin/upload — อัปโหลดรูปภาพ (Serverless Ready)
 export async function POST(req: NextRequest) {
   const authError = await verifyAdminToken(req);
   if (authError) return authError;
@@ -16,42 +14,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "ไม่พบไฟล์" }, { status: 400 });
     }
 
-    // ตรวจสอบประเภทไฟล์ — อนุญาตเฉพาะรูปภาพ
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"];
+    // ตรวจสอบประเภทไฟล์
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/svg+xml",
+    ];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
         { error: "อนุญาตเฉพาะไฟล์รูปภาพ (JPEG, PNG, GIF, WebP, SVG)" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    // จำกัดขนาดไฟล์ 5MB
-    if (file.size > 5 * 1024 * 1024) {
+    // จำกัดขนาดไฟล์ 8MB
+    if (file.size > 8 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "ไฟล์ใหญ่เกิน 5MB" },
-        { status: 400 },
+        { error: "ไฟล์มีขนาดใหญ่เกิน 8MB" },
+        { status: 400 }
       );
     }
 
-    // สร้างชื่อไฟล์ unique ด้วย timestamp + random
-    const ext = path.extname(file.name) || ".jpg";
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}${ext}`;
+    // คืน Data URL สำหรับ Serverless (Vercel) ปลอดภัย ไม่ติด Read-only filesystem
+    const bytes = await file.arrayBuffer();
+    const base64 = Buffer.from(bytes).toString("base64");
+    const dataUrl = `data:${file.type};base64,${base64}`;
 
-    // เขียนไฟล์ลง public/uploads/
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    await writeFile(path.join(uploadDir, filename), bytes);
-
-    // คืน URL ที่ใช้เข้าถึงไฟล์ได้
-    const url = `/uploads/${filename}`;
-
-    return NextResponse.json({ url }, { status: 201 });
-  } catch {
+    return NextResponse.json({ url: dataUrl }, { status: 201 });
+  } catch (err: any) {
+    console.error("Upload error:", err);
     return NextResponse.json(
-      { error: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์" },
-      { status: 500 },
+      { error: "เกิดข้อผิดพลาดในการอัปโหลดไฟล์: " + (err?.message || "") },
+      { status: 500 }
     );
   }
 }

@@ -1,4 +1,5 @@
 const { execSync } = require('child_process');
+const { PrismaClient } = require('@prisma/client');
 
 const fallbackDbUrl =
   'postgresql://neondb_owner:npg_1hcZf4ptaTYL@ep-frosty-fire-ayfgc4d4-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
@@ -33,15 +34,42 @@ try {
   console.warn('⚠️ Warning during db setup:', e.message);
 }
 
-try {
-  console.log('2. Seeding portfolios and images...');
-  execSync('node scripts/seed-all-detailed-portfolios.js', {
-    stdio: 'inherit',
-    env: process.env,
+// 3. Ensure base categories exist (never wipe or seed portfolios)
+async function syncCategories() {
+  const prisma = new PrismaClient({
+    datasourceUrl: process.env.DATABASE_URL || fallbackDbUrl,
   });
-  console.log('✓ Seed finished successfully.');
-} catch (e) {
-  console.warn('⚠️ Warning during seed:', e.message);
+
+  try {
+    console.log('3. Checking standard categories...');
+    const standardCategories = [
+      { name: 'งานคำนวณและแบบจำลอง Excel', slug: 'excel-models', icon: '📗', sortOrder: 1 },
+      { name: 'การบัญชีและการเงิน', slug: 'accounting', icon: '📊', sortOrder: 2 },
+      { name: 'แผนธุรกิจและการตลาด', slug: 'business-plan', icon: '📑', sortOrder: 3 },
+      { name: 'สถิติและการวิจัย SPSS', slug: 'spss-research', icon: '📈', sortOrder: 4 },
+      { name: 'รายงานและสารสนเทศ', slug: 'reports', icon: '📄', sortOrder: 5 },
+      { name: 'งานนำเสนอ & Canva', slug: 'presentation', icon: '🎨', sortOrder: 6 },
+      { name: 'วิศวกรรมและวิชาคำนวณ', slug: 'engineering', icon: '⚙️', sortOrder: 7 },
+      { name: 'กฎหมายธุรกิจและการบัญชี', slug: 'law', icon: '⚖️', sortOrder: 8 },
+      { name: 'แบบฝึกหัดและใบงาน', slug: 'assignments', icon: '✏️', sortOrder: 9 },
+    ];
+
+    for (const cat of standardCategories) {
+      await prisma.category.upsert({
+        where: { slug: cat.slug },
+        update: {}, // ไม่ทับข้อมูลหากมีอยู่แล้ว
+        create: cat,
+      });
+    }
+
+    console.log('✓ Categories are ready.');
+  } catch (err) {
+    console.warn('⚠️ Warning syncing categories:', err.message);
+  } finally {
+    await prisma.$disconnect();
+  }
 }
 
-console.log('=== DATABASE READY ===');
+syncCategories().then(() => {
+  console.log('=== DATABASE READY ===');
+});
